@@ -21,5 +21,9 @@ thiserror.workspace = true
 [dev-dependencies]
 recite-compiler = { version = "0.1.0", git = "https://github.com/plethu/recite", rev = "6ddf13bb944dc7b1f0528654a2e70e243e54bb6f" }
 
+[[example]]
+name = "archive"
+test = true
+
 [lints]
 workspace = true

@@ -170,3 +170,43 @@ requests at different positions. Record progress using the host's transaction
 identity together with the queue position, rather than deduplicating by request ID.
 The retained queue is not consumed by application. Later asynchronous scheduling
 would need its own explicit consumer contract.
+
+## Run the archive integration fixture
+
+From a source checkout with the pinned tools installed:
+
+```sh
+mise exec -- cargo run --locked -p leitmotif-recite --example archive
+```
+
+The original conversation queues a visit, exposes an archivist's claim immediately,
+then offers an unlock or leave choice. A world event can remove the key while that
+prompt is still pending, before the choice is selected. The faulty host transition
+trusts the captured availability; the corrected transition checks that the key is
+still present. Blocking denial changes host access explicitly before the Failed
+acknowledgement. Claim truth and belief are independent settings; exposure changes
+neither.
+
+The example explores actual cloned Recite sessions without deduplicating snapshots.
+It checks every visited host assignment against `opening_requires_current_key`,
+replays the faulty witness, and exhausts all eight initial key/truth/belief
+combinations for the corrected model. Full typed boundary records include events,
+query results and errors, host assignments, pending work, deferred queues and selected
+line IDs. Every completed history is replayed. The terminal shows a source-linked
+summary rather than dumping every record.
+
+Exhaustion applies only to the stated finite host protocol: key removal occurs at
+most once while the prompt remains pending; each blocking application permits one
+restore before application and one after host commitment; restored requests are
+redelivered before further host actions. Applied work is acknowledged Completed,
+denial Failed. The host applies deferred occurrences in reached order after End.
+The example does not explore arbitrary repeated restores, other host schedules or
+unbounded histories. Node and depth limits produce an inconclusive result; runtime
+failures remain error outcomes. The node budget limits evaluated tree nodes, not
+memory usage.
+
+Compilation and execution use the same pinned Recite revision as the adapter. The
+conversation is Rust-authored `concat!` source checked by the real compiler, with no
+second parser. To reproduce evidence, retain the fixture source, lockfile and
+toolchain along with the displayed model identity, complete initial assignments,
+property, protocol and limits. The runtime evidence remains experimental.

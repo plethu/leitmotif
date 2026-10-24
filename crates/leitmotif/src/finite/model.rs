@@ -83,6 +83,14 @@ impl Model {
         &self.context
     }
 
+    /// SHA-256 identity of this model's ordered semantic declarations.
+    /// Excludes source locations, runtime handle ownership and analysis inputs.
+    /// Retain the model source, lockfile and toolchain to reproduce a check.
+    #[must_use]
+    pub fn fingerprint(&self) -> &str {
+        &self.fingerprint
+    }
+
     /// Finite fact declarations in registration order.
     #[must_use]
     pub fn facts(&self) -> &[FactInfo] {
