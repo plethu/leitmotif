@@ -59,4 +59,5 @@ It drives the same authored harbour through two ordinary endings and a captured 
 choice whose oil has already been spent on the ferry. The later host guard rejects the
 beacon request, and the dialogue continues only after a failed acknowledgement. Full
 runtime boundaries are replayed against a fresh session. These are three bounded
-scripted interactions, not an exhaustive combined dialogue/host search or a native Godot integration.
+scripted interactions, not an exhaustive combined dialogue/host search or a native Godot
+integration.
