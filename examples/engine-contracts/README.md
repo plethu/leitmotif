@@ -48,3 +48,15 @@ and test drivers are omitted; missing instrumentation and unknown sources fail.
 These checks currently cover Linux x86_64, Godot .NET 4.6.3, and SDK 10.0.203. The .NET
 console is not a Unity Editor, Mono, or IL2CPP integration. No GDExtension or Bevy
 support is established by this fixture.
+
+The Rust-only Recite prerequisite is runnable with:
+
+```sh
+mise exec -- cargo run --locked -p leitmotif-recite --example harbour-dialogue
+```
+
+It drives the same authored harbour through two ordinary endings and a captured beacon
+choice whose oil has already been spent on the ferry. The later host guard rejects the
+beacon request, and the dialogue continues only after a failed acknowledgement. Full
+runtime boundaries are replayed against a fresh session. These are three bounded
+scripted interactions, not an exhaustive combined dialogue/host search or a native Godot integration.
