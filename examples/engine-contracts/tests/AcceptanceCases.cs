@@ -1,3 +1,5 @@
+using System.Reflection;
+using System.Runtime.Versioning;
 using System.Text.Json.Nodes;
 using Harbour;
 
@@ -5,6 +7,11 @@ public static class AcceptanceCases
 {
     public static void Run(string directory)
     {
+        var framework = typeof(Consumer)
+            .Assembly.GetCustomAttribute<TargetFrameworkAttribute>()
+            ?.FrameworkName;
+        if (framework != ".NETStandard,Version=v2.1")
+            throw new InvalidOperationException($"unexpected Shared artifact target: {framework}");
         var requestPath = Path.Combine(directory, "sheltered.request.json");
         var reportPath = Path.Combine(directory, "sheltered.check.json");
         var request = JsonNode.Parse(File.ReadAllText(requestPath))!;
