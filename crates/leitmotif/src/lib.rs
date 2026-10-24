@@ -4,7 +4,33 @@
 //! but transitions cannot write them. Analysis is relative to one named context;
 //! hypothesis classification uses only its explicitly supplied premises.
 
-#![doc = include_str!("../../../README.md")]
+//! # Example
+//!
+//! ```rust
+//! use leitmotif::{Fact, ModelBuilder, ReachabilityConclusion, SearchLimits, Transition};
+//!
+//! struct LearnedSecret;
+//! impl Fact for LearnedSecret {
+//!     type Value = bool;
+//!     const KEY: &'static str = "mara.learned_secret";
+//! }
+//!
+//! fn main() -> Result<(), leitmotif::Error> {
+//!     let mut builder = ModelBuilder::new("town.chapter_one")?;
+//!     let learned = builder.fact::<LearnedSecret>()?;
+//!     let model = builder
+//!         .with_transition(Transition::new("mara.learn").with_effect(learned.set(true)))
+//!         .build()?;
+//!     let initial = model.state([learned.set(false)])?;
+//!     let report = model.reachability(
+//!         &initial,
+//!         &learned.is(true),
+//!         SearchLimits { max_states: 64, max_depth: 8 },
+//!     )?;
+//!     assert!(matches!(report.conclusion, ReachabilityConclusion::Reached { .. }));
+//!     Ok(())
+//! }
+//! ```
 
 mod finite;
 
