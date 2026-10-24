@@ -2,6 +2,7 @@
 
 import copy
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -258,6 +259,8 @@ class ReportCliTests(unittest.TestCase):
 
     def test_real_cli_pass_failure_unsupported_and_invalid_input(self):
         script = Path(__file__).resolve().parents[2] / "scripts/report_consumer.py"
+        environment = os.environ.copy()
+        environment.pop("GITHUB_STEP_SUMMARY", None)
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             (root / "host.rs").write_text("host declaration\n", encoding="utf-8")
@@ -294,7 +297,11 @@ class ReportCliTests(unittest.TestCase):
                 if case in {"pass", "failure"}:
                     command += ["--summary", str(summary)]
                 result = subprocess.run(
-                    command, capture_output=True, text=True, check=False
+                    command,
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                    env=environment,
                 )
                 self.assertEqual(result.returncode, expected, result.stderr)
                 self.assertEqual(result.stderr, "")
@@ -306,6 +313,19 @@ class ReportCliTests(unittest.TestCase):
                 if case == "unsupported":
                     self.assertIn("Use --summary", result.stdout)
                     self.assertIn("no exhaustive result", result.stdout)
+            path.write_text(json.dumps(data), encoding="utf-8")
+            github_summary = root / "github-summary.md"
+            hosted = subprocess.run(
+                [sys.executable, str(script), str(path), "--repo-root", str(root)],
+                capture_output=True,
+                text=True,
+                check=False,
+                env={**environment, "GITHUB_STEP_SUMMARY": str(github_summary)},
+            )
+            self.assertEqual(hosted.returncode, 0, hosted.stderr)
+            self.assertEqual(hosted.stderr, "")
+            self.assertNotIn("Use --summary", hosted.stdout)
+            self.assertIn("Initial assignment 8", github_summary.read_text())
             missing = subprocess.run(
                 [sys.executable, str(script), str(root / "missing.json")],
                 capture_output=True,
