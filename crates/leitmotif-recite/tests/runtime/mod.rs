@@ -1,4 +1,6 @@
 //! Differential checks against the pinned compiler and runtime.
+mod immediate_effects;
+mod immediate_failures;
 mod support;
 
 use std::{cell::RefCell, thread};

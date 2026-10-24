@@ -106,4 +106,25 @@ adapter rejects it before constructing an unsafe tree.
 same immutable finite host assignment. The real runtime owns short-circuit
 traversal and captures choice availability when it emits a prompt. A later host
 state change does not rewrite that pending prompt's captured availability. The
-adapter does not parse dialogue or model dialogue control flow and effects.
+adapter does not parse dialogue or own dialogue control flow.
+
+## Immediate host requests
+
+Create `ImmediateEffects::new(&model)` and register each supported compiled
+immediate effect with `bind(&compiled_effect, "host.transition")`. The transition
+must already exist in that model. Bindings match the function and exact typed
+arguments; runtime request IDs remain opaque identities rather than lookup keys.
+
+After Recite yields `DialogueEvent::Effect(request)`, call
+`effects.apply(&request, &host_state)`. The receipt borrows the original request,
+including its ID, arguments and full source span, and identifies the declared host
+transition. Commit `receipt.into_state()` as the new host state before the next
+traversal call. The existing transition rules still enforce simultaneous
+assignments and reject setting writes when the model is built.
+
+Emission alone leaves the host unchanged. Application errors leave its input state
+untouched and report unmapped requests, non-immediate modes, disabled transitions,
+or a typed model failure. The dialogue has already advanced past the immediate
+statement; an application failure does not rewind it. Recite session rollback can
+restore that position and emit the request again, but cannot undo an external host
+write. The registry provides no automatic retry or duplicate-delivery suppression.
