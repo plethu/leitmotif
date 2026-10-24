@@ -128,3 +128,23 @@ or a typed model failure. The dialogue has already advanced past the immediate
 statement; an application failure does not rewind it. Recite session rollback can
 restore that position and emit the request again, but cannot undo an external host
 write. The registry provides no automatic retry or duplicate-delivery suppression.
+
+## Blocking host requests
+
+`BlockingEffects::new(&model)` binds blocking declarations to host transitions.
+After Recite emits a blocking request, call
+`effects.apply_pending(&session, &host_state)` to apply the authoritative request
+borrowed from the session. The receipt retains its exact identity and span. Commit
+`receipt.into_state()` before calling Recite's `acknowledge_effect` with the
+matching request ID and an `EffectAck`, then continue traversal separately.
+Application alone leaves the conversation pending. Both `Completed` and `Failed`
+acknowledgements clear that pending request and resume the same continuation;
+the acknowledgement neither changes host facts nor selects a dialogue branch.
+
+Save the host assignment alongside the Recite session. A restored session emits
+its pending request once with the same ID, even if the host operation was already
+applied before saving. Reconcile the saved host state before applying anything
+again; a domain guard such as "item not yet granted" can prevent a repeated write.
+The adapter has no delivery ledger or general exactly-once guarantee. Recite's
+restore-only delivery marker is absent from session snapshots: byte-equal
+snapshots do not imply equal next deliveries.

@@ -175,13 +175,19 @@ fn invalid_registration_and_other_effect_modes_are_explicit_without_losing_valid
         wrong.mode = compiled_mode;
         assert!(matches!(
             registry.bind(&wrong, "grant").unwrap_err().kind,
-            EffectErrorKind::NotImmediate
+            EffectErrorKind::WrongMode {
+                expected: DialogueEffectMode::Immediate,
+                ..
+            }
         ));
         let mut wrong = request.clone();
         wrong.mode = runtime_mode;
         assert!(matches!(
             registry.apply(&wrong, &host).unwrap_err().kind,
-            EffectErrorKind::NotImmediate
+            EffectErrorKind::WrongMode {
+                expected: DialogueEffectMode::Immediate,
+                ..
+            }
         ));
     }
     let applied = registry.apply(&request, &host).unwrap();

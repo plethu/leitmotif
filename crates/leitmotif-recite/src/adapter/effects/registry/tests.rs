@@ -1,9 +1,10 @@
+use crate::adapter::error::caller;
 use leitmotif::{Fact, ModelBuilder, Transition};
 use recite_core::{EffectId, SourcePosition, SourceSpan, compiled::SourceMapIndex};
 
 use super::{
     CompiledArgument, CompiledEffect, CompiledEffectMode, DialogueEffectArgument,
-    DialogueEffectMode, DialogueEffectRequest, ImmediateEffects, ScalarValue, matching_binding,
+    DialogueEffectMode, DialogueEffectRequest, Registry, ScalarValue, matching_binding,
 };
 
 struct Granted;
@@ -21,7 +22,7 @@ fn fixed_registry_bounds_exact_signature_probes_and_applies_the_declared_transit
         .build()
         .unwrap();
     let initial = model.state([granted.set(false)]).unwrap();
-    let mut registry = ImmediateEffects::new(&model);
+    let mut registry = Registry::new(&model);
     for index in 0..128 {
         let effect = CompiledEffect {
             id: EffectId::new(format!("effect-{index}")).unwrap(),
@@ -33,7 +34,7 @@ fn fixed_registry_bounds_exact_signature_probes_and_applies_the_declared_transit
             ],
             source_map: SourceMapIndex::new(0),
         };
-        registry.bind(&effect, "grant").unwrap();
+        registry.bind(&effect, "grant", caller()).unwrap();
     }
     let mut request = DialogueEffectRequest {
         id: EffectId::new("opaque-request").unwrap(),

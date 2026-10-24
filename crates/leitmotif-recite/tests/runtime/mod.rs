@@ -263,3 +263,5 @@ fn mixed_deep_and_wide_compiled_guards_fail_explicitly_on_a_worker_stack() {
         }
     }).unwrap().join().unwrap();
 }
+
+mod blocking_effects;
