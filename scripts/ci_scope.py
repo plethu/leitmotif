@@ -5,7 +5,6 @@ import os
 import subprocess
 from pathlib import Path
 
-
 DOC_FILES = frozenset({"AGENTS.md", "ATTRIBUTIONS.md", "CONTRIBUTING.md"})
 
 
@@ -34,7 +33,9 @@ def select_rust(event, base, head):
     if event not in {"push", "pull_request"} or not base or set(base) == {"0"}:
         return True
     try:
-        return needs_rust(changed_paths(base, head, pull_request=event == "pull_request"))
+        return needs_rust(
+            changed_paths(base, head, pull_request=event == "pull_request")
+        )
     except subprocess.CalledProcessError:
         return True
 

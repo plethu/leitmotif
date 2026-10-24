@@ -1,0 +1,10 @@
+{
+  "lineWidth": 88,
+  "indentWidth": 2,
+  "includes": ["**/*.{json,jsonc,yml,yaml}"],
+  "excludes": ["target", ".agents", ".codex", "docs/architecture-preview"],
+  "plugins": [
+    "https://github.com/dprint/dprint-plugin-json/releases/download/0.25.2/plugin.wasm",
+    "https://github.com/g-plane/pretty_yaml/releases/download/v0.6.0/plugin.wasm"
+  ]
+}

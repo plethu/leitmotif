@@ -1,0 +1,6 @@
+[global]
+line-length = 88
+exclude = ["target", ".agents", ".codex", "docs/architecture-preview"]
+
+[MD013]
+reflow = true

@@ -7,7 +7,7 @@ mod quality '.config/just/quality.just'
 default:
     @just --list
 
-# Deliberately format Rust and TOML sources.
+# Format every authored language with the pinned project tools.
 fmt:
     cargo fmt --all
     just quality fmt
@@ -38,11 +38,17 @@ supply-chain:
     cargo deny check advisories bans licenses sources
     cargo machete
 
+# Include executable examples, excluding tests and dependency/toolchain sources.
+coverage:
+    cargo +nightly-2026-06-10 llvm-cov nextest --workspace --all-features --locked --branch --no-default-ignore-filename-regex --ignore-filename-regex '(^|/)(tests|target|rustc|\.cargo|\.rustup)/' --json --output-path "${CARGO_TARGET_DIR:-target}/coverage.json"
+    python scripts/coverage_gate.py "${CARGO_TARGET_DIR:-target}/coverage.json"
+
 # Complete acceptance gate; CI invokes the same constituent lanes.
 check:
     just quality check
     just core-check
     just supply-chain
+    just coverage
 
 verify: check
 
