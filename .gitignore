@@ -1,0 +1,27 @@
+/target/
+**/*.rs.bk
+__pycache__/
+
+# Disposable architecture presentations; active work lives in GitHub issues.
+/docs/architecture-preview/
+
+# Machine-local tool, editor, environment, and agent state.
+.DS_Store
+.direnv/
+.env
+.env.*
+.envrc.local
+.mise.local.toml
+mise.local.toml
+.idea/
+.vscode/
+.zed/
+*.code-workspace
+*.sw?
+*~
+/.aws/
+/.codex/
+.claude/settings.local.json
+.agents/local/
+.agents/private/
+.agents/tmp/

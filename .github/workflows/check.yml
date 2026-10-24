@@ -1,0 +1,75 @@
+name: Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 5 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Quality and CI scope
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      rust: ${{ steps.scope.outputs.rust }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: jdx/mise-action@3c2e0cf82a5b2e5249f0d3635a4d83d0ae861518 # v4.2.5
+        with:
+          install_args: just python taplo typos aqua:rhysd/actionlint
+      - run: just quality check
+      - id: scope
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: python scripts/ci_scope.py --event "$EVENT_NAME" --base "$BASE_SHA"
+
+  rust:
+    name: Rust and dependencies
+    needs: quality
+    if: needs.quality.outputs.rust == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: jdx/mise-action@3c2e0cf82a5b2e5249f0d3635a4d83d0ae861518 # v4.2.5
+        with:
+          install_args: rust just cargo:cargo-nextest cargo:cargo-deny cargo:cargo-machete
+      - run: just core-check
+      - run: just supply-chain
+
+  check:
+    name: Check complete
+    if: always()
+    needs: [quality, rust]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Require every selected lane to succeed
+        env:
+          QUALITY_RESULT: ${{ needs.quality.result }}
+          RUST_SELECTED: ${{ needs.quality.outputs.rust }}
+          RUST_RESULT: ${{ needs.rust.result }}
+        run: |
+          test "$QUALITY_RESULT" = success
+          if [ "$RUST_SELECTED" = true ]; then
+            test "$RUST_RESULT" = success
+          else
+            test "$RUST_SELECTED" = false
+            test "$RUST_RESULT" = skipped
+          fi

@@ -1,0 +1,24 @@
+[package]
+name = "leitmotif"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Experimental Rust-authored narrative models and finite verification"
+readme = "../../README.md"
+keywords = ["narrative", "verification", "state-machine", "game", "mystery"]
+categories = ["game-development", "development-tools"]
+publish = false
+
+[dependencies]
+serde.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+clap.workspace = true
+serde_json.workspace = true
+
+[lints]
+workspace = true
