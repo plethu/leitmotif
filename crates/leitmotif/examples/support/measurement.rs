@@ -35,7 +35,11 @@ enum Query {
 }
 
 #[derive(Debug, Parser)]
-#[command(about = "Measure a deterministic finite town (peak RSS requires Linux /proc)")]
+#[command(
+    about = "Measure a deterministic finite town (peak RSS requires Linux /proc)",
+    next_line_help = true,
+    max_term_width = 80
+)]
 struct Args {
     /// Measure synthetic cycles or the separately authored harbour stories.
     #[arg(long, value_enum, default_value = "synthetic")]

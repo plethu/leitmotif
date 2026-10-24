@@ -210,3 +210,14 @@ fn composed_fixture_rejects_explicit_synthetic_dimensions() {
         assert!(diagnostic.contains("only to the synthetic fixture"));
     }
 }
+
+#[test]
+fn help_fits_eighty_columns_without_splitting_option_values() {
+    let output = run(&["--help"], 0).unwrap();
+    assert!(output.stderr.is_empty());
+    let help = String::from_utf8(output.stdout).unwrap();
+    assert!(help.lines().all(|line| line.chars().count() <= 80));
+    assert!(help.contains("      --fixture <FIXTURE>\n"));
+    assert!(help.contains("synthetic, composed"));
+    assert!(help.contains("unreachable, alternative"));
+}

@@ -20,7 +20,7 @@ sha2.workspace = true
 base16ct.workspace = true
 
 [dev-dependencies]
-clap.workspace = true
+clap = { workspace = true, features = ["wrap_help"] }
 
 [lints]
 workspace = true
