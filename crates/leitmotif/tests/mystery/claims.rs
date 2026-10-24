@@ -1,5 +1,5 @@
 use super::*;
-use claims::{Attitude, Belief, Exposure, Reference, Statement};
+use claims::{Attitude, Belief, EvidenceId, Exposure, Reference, Statement};
 use inquiry::InquiryError;
 use leitmotif::HypothesisConclusion;
 
@@ -33,10 +33,8 @@ fn testimony_belief_exposure_and_author_truth_are_not_premises() {
         claim: ClaimId::MiraAccusesOrin,
         attitude: Attitude::Accepts,
     }; 2];
-    story.exposures = [Exposure {
-        observer: Person::Mira,
-        claim: ClaimId::DuskOpen,
-    }; 2];
+    story.exposures =
+        vec![Exposure::new(Person::Mira, EvidenceId::Testimony(ClaimId::DuskOpen)); 2];
     assert_eq!(before.report, story.inquire(&[], 8).unwrap().report);
     let accepted = story
         .inquire(

@@ -1,4 +1,4 @@
-use super::claims::{Attitude, Belief, ClaimId, Context, Exposure, Person};
+use super::claims::{Attitude, Belief, ClaimId, Context, EvidenceId, Exposure, Person};
 use leitmotif::{Domain, Fact, FactHandle, FactKind, Model, ModelBuilder, State, Value};
 
 impl Domain for Person {
@@ -36,7 +36,7 @@ pub(super) struct Story {
     pub(super) model: Model,
     pub(super) truth: State,
     pub(super) beliefs: [Belief; 2],
-    pub(super) exposures: [Exposure; 2],
+    pub(super) exposures: Vec<Exposure>,
     culprit: FactHandle<Culprit>,
     dusk: FactHandle<LockedAtDusk>,
     dawn: FactHandle<LockedAtDawn>,
@@ -67,15 +67,12 @@ impl Story {
                     attitude: Attitude::Rejects,
                 },
             ],
-            exposures: [
-                Exposure {
-                    observer: Person::Orin,
-                    claim: ClaimId::MiraAccusesOrin,
-                },
-                Exposure {
-                    observer: Person::Mira,
-                    claim: ClaimId::OrinSawCoat,
-                },
+            exposures: vec![
+                Exposure::new(
+                    Person::Orin,
+                    EvidenceId::Testimony(ClaimId::MiraAccusesOrin),
+                ),
+                Exposure::new(Person::Orin, EvidenceId::Testimony(ClaimId::OrinSawCoat)),
             ],
         })
     }

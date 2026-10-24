@@ -63,7 +63,7 @@ pub fn run() -> Result<(), Box<dyn Error>> {
     for exposure in &story.exposures {
         println!(
             "Exposure: {:?} encountered {:?}",
-            exposure.observer, exposure.claim
+            exposure.observer, exposure.evidence
         );
     }
     for id in [
@@ -108,8 +108,13 @@ pub fn run() -> Result<(), Box<dyn Error>> {
             .model
             .evaluate(&story.truth, &story.culprit(Person::Orin))?
     );
+    observer::demonstrate()?;
     Ok(())
 }
+mod observer;
+#[cfg(test)]
+#[path = "../../../tests/mystery/observer.rs"]
+mod observer_tests;
 #[cfg(test)]
 #[path = "../../../tests/mystery/claims.rs"]
 mod tests;

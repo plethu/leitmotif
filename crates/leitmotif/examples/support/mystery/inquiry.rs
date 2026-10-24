@@ -14,7 +14,13 @@ pub(super) struct Authority {
 impl Authority {
     #[track_caller]
     pub(super) fn new(name: &'static str, endorsement: Endorsement) -> Result<Self, InquiryError> {
-        let source = Location::caller();
+        Self::at(name, endorsement, Location::caller())
+    }
+    pub(super) fn at(
+        name: &'static str,
+        endorsement: Endorsement,
+        source: &'static Location<'static>,
+    ) -> Result<Self, InquiryError> {
         if name.trim().is_empty() {
             return Err(InquiryError::InvalidAuthority {
                 source_location: source,

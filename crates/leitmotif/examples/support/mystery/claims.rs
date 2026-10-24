@@ -33,7 +33,7 @@ pub(super) enum ClaimId {
     DuskOpen,
     DawnOpen,
 }
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub(super) struct Claim {
     pub(super) id: ClaimId,
     pub(super) speaker: Person,
@@ -99,7 +99,46 @@ pub(super) struct Belief {
     pub(super) attitude: Attitude,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum EvidenceId {
+    Testimony(ClaimId),
+    CoatPortrait,
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(super) struct Exposure {
     pub(super) observer: Person,
-    pub(super) claim: ClaimId,
+    pub(super) evidence: EvidenceId,
+    pub(super) source: &'static Location<'static>,
+}
+impl Exposure {
+    #[track_caller]
+    pub(super) const fn new(observer: Person, evidence: EvidenceId) -> Self {
+        Self {
+            observer,
+            evidence,
+            source: Location::caller(),
+        }
+    }
+}
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(super) enum Evidence {
+    Testimony(Claim),
+    CoatPortrait(Portrait),
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) struct Portrait {
+    pub(super) person: Person,
+    pub(super) source: &'static Location<'static>,
+}
+pub(super) const fn portrait() -> Portrait {
+    // A labelled harbour portrait identifies the salt-coat figure as Mira.
+    Portrait {
+        person: Person::Mira,
+        source: Location::caller(),
+    }
+}
+pub(super) const fn evidence(id: EvidenceId) -> Evidence {
+    match id {
+        EvidenceId::Testimony(id) => Evidence::Testimony(claim(id)),
+        EvidenceId::CoatPortrait => Evidence::CoatPortrait(portrait()),
+    }
 }
