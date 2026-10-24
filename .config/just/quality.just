@@ -9,6 +9,7 @@ fmt:
     rumdl fmt .
     just --unstable --fmt
     just --justfile .config/just/quality.just --unstable --fmt
+    just --justfile .config/just/engine.just --unstable --fmt
 
 fmt-check:
     taplo fmt --check
@@ -18,6 +19,7 @@ fmt-check:
     rumdl fmt --check .
     just --unstable --fmt --check
     just --justfile .config/just/quality.just --unstable --fmt --check
+    just --justfile .config/just/engine.just --unstable --fmt --check
 
 lint:
     ruff check scripts tests

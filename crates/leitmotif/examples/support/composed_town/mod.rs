@@ -11,7 +11,7 @@ use leitmotif::{
 };
 
 #[derive(Clone, Copy)]
-enum Ending {
+pub(super) enum Ending {
     Open,
     Sheltered,
     Departed,
@@ -54,6 +54,22 @@ struct Shared {
     oil: FactHandle<Oil>,
 }
 
+/// Complete typed input from a host projection; no missing value is defaulted.
+pub(super) struct Projection {
+    pub(super) harbour: HarbourProjection,
+    pub(super) keeper: KeeperProjection,
+    pub(super) ferry: bool,
+}
+pub(super) struct HarbourProjection {
+    pub(super) ending: Ending,
+    pub(super) oil: bool,
+    pub(super) storm: bool,
+}
+pub(super) struct KeeperProjection {
+    pub(super) warning: bool,
+    pub(super) beacon: bool,
+}
+
 /// Separately authored harbour stories and their ending queries.
 pub(super) struct Town {
     pub(super) model: Model,
@@ -68,6 +84,22 @@ pub(super) struct Town {
 /// # Errors
 /// Returns invalid fact, event or invariant declarations.
 pub(super) fn town() -> Result<Town, Error> {
+    project(&Projection {
+        harbour: HarbourProjection {
+            ending: Ending::Open,
+            oil: true,
+            storm: false,
+        },
+        keeper: KeeperProjection {
+            warning: false,
+            beacon: false,
+        },
+        ferry: false,
+    })
+}
+
+/// Builds the same authored model around a complete typed host assignment.
+pub(super) fn project(projection: &Projection) -> Result<Town, Error> {
     let mut builder = ModelBuilder::new("storm_harbour")?;
     let ending = builder.fact::<TownEnding>()?;
     let oil = builder.fact::<Oil>()?;
@@ -101,12 +133,12 @@ pub(super) fn town() -> Result<Town, Error> {
         ))
         .build()?;
     let initial = model.state([
-        ending.set(Ending::Open),
-        shared.oil.set(true),
-        storm.set(false),
-        keeper.warning.set(false),
-        keeper.beacon.set(false),
-        ferryman.ready.set(false),
+        ending.set(projection.harbour.ending),
+        shared.oil.set(projection.harbour.oil),
+        storm.set(projection.harbour.storm),
+        keeper.warning.set(projection.keeper.warning),
+        keeper.beacon.set(projection.keeper.beacon),
+        ferryman.ready.set(projection.ferry),
     ])?;
     Ok(Town {
         model,

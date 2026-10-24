@@ -3,6 +3,7 @@ set positional-arguments
 
 # Formatting, spelling, workflows, and CI policy.
 mod quality '.config/just/quality.just'
+mod engine '.config/just/engine.just'
 
 default:
     @just --list
@@ -11,10 +12,12 @@ default:
 fmt:
     cargo fmt --all
     just quality fmt
+    just engine fmt
 
 fmt-check:
     cargo fmt --all -- --check
     just quality fmt-check
+    just engine fmt-check
 
 clippy:
     cargo clippy --workspace --all-targets --all-features --locked -- -D warnings
@@ -50,6 +53,7 @@ check:
     just supply-chain
     just coverage
     just report-check
+    just engine check
 
 verify: check
 

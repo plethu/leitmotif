@@ -28,3 +28,7 @@ workspace = true
 [[test]]
 name = "town_contracts"
 path = "examples/support/town_contracts.rs"
+
+[[test]]
+name = "engine_contracts"
+path = "examples/support/engine_contracts_contracts.rs"

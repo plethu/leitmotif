@@ -1,0 +1,14 @@
+config_version=5
+
+[application]
+
+config/name="Harbour engine contract"
+run/main_scene="res://Harbour.tscn"
+
+[dotnet]
+
+project/assembly_name="Harbour.Godot"
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
