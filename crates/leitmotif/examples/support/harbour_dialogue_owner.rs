@@ -4,4 +4,4 @@ mod composed_town;
 #[path = "../../../leitmotif-recite/examples/support/harbour_dialogue/mod.rs"]
 mod harbour_dialogue;
 
-pub use harbour_dialogue::run;
+pub use harbour_dialogue::{compiled_asset, run};

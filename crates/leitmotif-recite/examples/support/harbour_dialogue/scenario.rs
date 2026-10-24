@@ -2,7 +2,7 @@ use leitmotif_recite::Bindings;
 use recite_core::compiled::{CompiledArgument, CompiledConditionCall, CompiledDialogue};
 
 use super::super::composed_town::{self, Projection, Town};
-use super::{RunResult, source};
+use super::RunResult;
 
 pub(super) struct Scenario {
     pub(super) town: Town,
@@ -11,7 +11,7 @@ pub(super) struct Scenario {
 }
 
 impl Scenario {
-    pub(super) fn new() -> RunResult<Self> {
+    pub(super) fn from_asset(asset: CompiledDialogue) -> RunResult<Self> {
         let (town, conditions) = composed_town::project_with(&Projection::default(), |facts| {
             let mut conditions = Bindings::new();
             conditions.bind_bool(call("has_oil", "harbour"), &facts.oil)?;
@@ -22,7 +22,7 @@ impl Scenario {
         })?;
         Ok(Self {
             town,
-            asset: source::compile(source::TEXT)?,
+            asset,
             conditions: conditions?,
         })
     }

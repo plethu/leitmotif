@@ -34,4 +34,12 @@ workspace = true
 [[example]]
 name = "harbour-dialogue"
 path = "../leitmotif/examples/support/harbour_dialogue_fixture.rs"
+
+[[test]]
+name = "harbour_dialogue_contracts"
+path = "../leitmotif/examples/support/harbour_dialogue_contracts.rs"
+
+[[example]]
+name = "harbour-native-cases"
+path = "tests/native_assets/driver.rs"
 test = true

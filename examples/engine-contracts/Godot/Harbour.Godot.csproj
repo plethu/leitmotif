@@ -10,5 +10,6 @@
     <ItemGroup>
         <ProjectReference Include="../Shared/Harbour.csproj" />
         <Compile Include="../tests/AcceptanceCases.cs" />
+        <Compile Include="../Shared/HarbourState.cs" />
     </ItemGroup>
 </Project>

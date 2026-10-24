@@ -1,0 +1,56 @@
+[package]
+name = "leitmotif-godot-native"
+version = "0.1.0-alpha.0"
+edition = "2024"
+rust-version = "1.96"
+license = "MIT OR Apache-2.0"
+authors = ["Allie"]
+repository = "https://github.com/plethu/leitmotif"
+description = "Experimental native Godot consumer of the composed harbour"
+keywords = ["narrative", "verification", "godot"]
+categories = ["game-development"]
+publish = false
+
+# Keep this optional native consumer outside the core workspace.
+[workspace]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+leitmotif = { path = "../../crates/leitmotif", version = "0.1.0-alpha.0" }
+godot = { version = "=0.5.5", default-features = false, features = ["api-4-6"] }
+leitmotif-recite = { path = "../../crates/leitmotif-recite", version = "0.1.0-alpha.0" }
+recite-core = { version = "0.1.0", git = "https://github.com/plethu/recite", rev = "6ddf13bb944dc7b1f0528654a2e70e243e54bb6f" }
+recite-runtime = { version = "0.1.0", git = "https://github.com/plethu/recite", rev = "6ddf13bb944dc7b1f0528654a2e70e243e54bb6f" }
+
+# The engine configuration test enforces parity with root workspace lints,
+# except for the native entry point's explicit unsafe-code exception.
+[lints.rust]
+unsafe_code = "deny"
+missing_docs = "deny"
+unreachable_pub = "deny"
+unfulfilled_lint_expectations = "deny"
+
+[lints.clippy]
+all = { level = "deny", priority = -1 }
+pedantic = { level = "deny", priority = -1 }
+nursery = { level = "deny", priority = -1 }
+cargo = { level = "deny", priority = -1 }
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+panic_in_result_fn = "deny"
+unreachable = "deny"
+unimplemented = "deny"
+todo = "deny"
+exit = "deny"
+dbg_macro = "deny"
+indexing_slicing = "deny"
+string_slice = "deny"
+arithmetic_side_effects = "deny"
+unchecked_time_subtraction = "deny"
+as_conversions = "deny"
+absolute_paths = "deny"
+allow_attributes_without_reason = "deny"
+excessive_nesting = "deny"

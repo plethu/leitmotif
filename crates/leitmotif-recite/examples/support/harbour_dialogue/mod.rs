@@ -1,3 +1,4 @@
+mod effect_bindings;
 mod evidence;
 mod runtime;
 mod scenario;
@@ -8,12 +9,19 @@ mod tests;
 use super::composed_town;
 use evidence::{Operation, Outcome};
 use leitmotif::SearchLimits;
+use recite_core::compiled::encode_compiled_dialogue_messagepack;
 use recite_runtime::DialogueEvent;
 use runtime::Execution;
 use scenario::Scenario;
 use std::error::Error;
 
 type RunResult<T> = Result<T, Box<dyn Error>>;
+
+impl Scenario {
+    fn new() -> RunResult<Self> {
+        Self::from_asset(source::compile(source::TEXT)?)
+    }
+}
 
 #[derive(Clone, Copy, Debug)]
 enum Route {
@@ -139,4 +147,13 @@ pub fn run() -> RunResult<()> {
         }
     }
     Ok(())
+}
+
+/// Compile the sole authored harbour dialogue for an engine consumer.
+///
+/// # Errors
+/// Returns compiler diagnostics or official compiled-asset encoding failures.
+pub fn compiled_asset() -> RunResult<Vec<u8>> {
+    let asset = source::compile(source::TEXT)?;
+    Ok(encode_compiled_dialogue_messagepack(&asset)?)
 }

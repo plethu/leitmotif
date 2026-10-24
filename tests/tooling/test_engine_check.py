@@ -144,6 +144,17 @@ class EngineCheckTests(unittest.TestCase):
         self.assertEqual(sdk["version"], mise["tools"]["dotnet"])
         self.assertEqual(sdk["rollForward"], "disable")
 
+    def test_native_leaf_preserves_workspace_lints_except_scoped_unsafe_entry(self):
+        root = tomllib.loads((engine_check.ROOT / "Cargo.toml").read_text())
+        native = tomllib.loads(
+            (engine_check.ROOT / "examples/godot-native/Cargo.toml").read_text()
+        )
+        self.assertIn("examples/godot-native", root["workspace"]["exclude"])
+        self.assertEqual(root["workspace"]["lints"]["rust"]["unsafe_code"], "forbid")
+        expected = root["workspace"]["lints"]
+        expected["rust"]["unsafe_code"] = "deny"
+        self.assertEqual(native["lints"], expected)
+
     def test_real_help_is_available_without_engine_tools(self):
         result = subprocess.run(
             [sys.executable, "-m", "scripts.engine_check", "--help"],

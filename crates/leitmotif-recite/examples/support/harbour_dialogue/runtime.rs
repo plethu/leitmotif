@@ -1,11 +1,8 @@
 mod effects;
 
-use leitmotif::{Source, State, TransitionInfo};
-use leitmotif_recite::{BlockingEffects, EffectError, EffectErrorKind, ImmediateEffects};
-use recite_core::{
-    ChoiceId, LineId, SourceSpan,
-    compiled::{CompiledArgument, CompiledEffectMode},
-};
+use leitmotif::{State, TransitionInfo};
+use leitmotif_recite::{BlockingEffects, ImmediateEffects};
+use recite_core::{ChoiceId, LineId, SourceSpan};
 use recite_runtime::{
     ConditionQuery, DialogueChoice, DialogueContext, DialogueEffectMode, DialogueEffectRequest,
     DialogueError, DialogueEvent, DialogueSession, choose, next, snapshot::snapshot_session,
@@ -47,64 +44,8 @@ pub(super) struct Execution<'scenario> {
 
 impl<'scenario> Execution<'scenario> {
     pub(super) fn fresh(scenario: &'scenario Scenario) -> RunResult<Self> {
-        let mut immediate = ImmediateEffects::new(&scenario.town.model);
-        let mut blocking = BlockingEffects::new(&scenario.town.model);
-        for effect in &scenario.asset.effects {
-            let span = &scenario
-                .asset
-                .source_maps
-                .get(usize::try_from(effect.source_map.as_u32())?)
-                .ok_or("effect source map missing")?
-                .span;
-            let provenance = Source {
-                file: span.file.clone(),
-                portable_file: Some(span.file.clone()),
-                line: span.start.line(),
-                column: span.start.column(),
-            };
-            let (transition, actor, mode) = match effect.function.as_str() {
-                "share_warning" => (
-                    "keeper.share_warning",
-                    "keeper",
-                    CompiledEffectMode::Immediate,
-                ),
-                "light_beacon" => (
-                    "keeper.light_beacon",
-                    "keeper",
-                    CompiledEffectMode::Blocking,
-                ),
-                "fuel_ferry" => (
-                    "ferryman.fuel_ferry",
-                    "ferryman",
-                    CompiledEffectMode::Blocking,
-                ),
-                "shelter" => ("harbour.shelter", "harbour", CompiledEffectMode::Immediate),
-                "depart" => ("harbour.depart", "harbour", CompiledEffectMode::Immediate),
-                _ => {
-                    return Err(EffectError {
-                        kind: EffectErrorKind::Unmapped(effect.function.clone()),
-                        provenance,
-                    }
-                    .into());
-                }
-            };
-            if effect.args != [CompiledArgument::Identifier(actor.into())] {
-                return Err(EffectError {
-                    kind: EffectErrorKind::Unmapped(effect.function.clone()),
-                    provenance,
-                }
-                .into());
-            }
-            let registered = if mode == CompiledEffectMode::Immediate {
-                immediate.bind(effect, transition)
-            } else {
-                blocking.bind(effect, transition)
-            };
-            registered.map_err(|mut error| {
-                error.provenance = provenance;
-                error
-            })?;
-        }
+        let (immediate, blocking) =
+            super::effect_bindings::effect_bindings(&scenario.town.model, &scenario.asset)?;
         Ok(Self {
             scenario,
             session: start_scene(&scenario.asset, None)?,

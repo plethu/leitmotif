@@ -4,6 +4,7 @@ set positional-arguments
 # Formatting, spelling, workflows, and CI policy.
 mod quality '.config/just/quality.just'
 mod engine '.config/just/engine.just'
+mod native '.config/just/native.just'
 
 default:
     @just --list
@@ -11,11 +12,13 @@ default:
 # Format every authored language with the pinned project tools.
 fmt:
     cargo fmt --all
+    just native fmt
     just quality fmt
     just engine fmt
 
 fmt-check:
     cargo fmt --all -- --check
+    just native fmt-check
     just quality fmt-check
     just engine fmt-check
 
@@ -54,6 +57,7 @@ check:
     just coverage
     just report-check
     just engine check
+    just native check
 
 verify: check
 

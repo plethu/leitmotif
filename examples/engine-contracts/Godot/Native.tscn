@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://NativeDriver.cs" id="1_tn7ra"]
+
+[node name="Native" type="Node"]
+script = ExtResource("1_tn7ra")

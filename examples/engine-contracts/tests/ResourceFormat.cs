@@ -4,7 +4,7 @@ public partial class ResourceFormat : Node
 {
     public override void _Ready()
     {
-        foreach (var name in new[] { "Harbour", "Coverage", "Format" })
+        foreach (var name in new[] { "Harbour", "Coverage", "Format", "Native" })
         {
             var resource = ResourceLoader.Load<PackedScene>($"res://{name}.tscn");
             var path = $"user://{name}.canonical.tscn";
