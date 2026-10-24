@@ -210,3 +210,28 @@ conversation is Rust-authored `concat!` source checked by the real compiler, wit
 second parser. To reproduce evidence, retain the fixture source, lockfile and
 toolchain along with the displayed model identity, complete initial assignments,
 property, protocol and limits. The runtime evidence remains experimental.
+
+## Historical occurrences and late revelations
+
+Run the original tide-plate story with:
+
+```sh
+mise exec -- cargo run -p leitmotif --example mystery
+```
+
+Its chronology demonstration treats two cabinet-lock occurrences as historical facts.
+Both precede today's conversation; their order relative to each other is unspecified.
+A late flashback presents one of these occurrences without moving it in world time.
+The execution trace records when the conversation, acquisition, disclosure, and
+flashback actions actually run.
+
+Orin's acquisition and the audience's exposure have separate facts for each occurrence.
+Here, an explicit acquisition action licenses Orin to disclose that occurrence. This is
+an authored prerequisite, not a general theory of knowledge or an endorsement of
+previous testimony. The example prints a source-linked early-disclosure witness, then
+checks the guarded version over its complete finite reachable state space.
+
+The private fixture supports three named historical occurrences, strict-before
+constraints, and seven one-shot execution actions. It rejects cyclic constraints and
+keeps unrelated occurrences unordered. Calendars, durations, intervals, simultaneous
+occurrences, and unbounded repetition are outside this fragment.

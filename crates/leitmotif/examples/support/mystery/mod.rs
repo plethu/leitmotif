@@ -109,6 +109,7 @@ pub fn run() -> Result<(), Box<dyn Error>> {
             .evaluate(&story.truth, &story.culprit(Person::Orin))?
     );
     observer::demonstrate()?;
+    chronology::demonstrate()?;
     Ok(())
 }
 mod observer;
@@ -118,3 +119,9 @@ mod observer_tests;
 #[cfg(test)]
 #[path = "../../../tests/mystery/claims.rs"]
 mod tests;
+
+#[cfg(test)]
+#[path = "../../../tests/mystery/chronology.rs"]
+mod chronology_tests;
+
+mod chronology;
