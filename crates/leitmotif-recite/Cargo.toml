@@ -1,0 +1,25 @@
+[package]
+name = "leitmotif-recite"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Typed finite-fact bindings for compiled Recite guards"
+readme = "../../README.md"
+keywords = ["narrative", "verification", "dialogue"]
+categories = ["game-development"]
+publish = false
+
+[dependencies]
+leitmotif = { path = "../leitmotif", version = "0.1.0-alpha.0" }
+recite-core = { version = "0.1.0", git = "https://github.com/plethu/recite", rev = "6ddf13bb944dc7b1f0528654a2e70e243e54bb6f" }
+recite-runtime = { version = "0.1.0", git = "https://github.com/plethu/recite", rev = "6ddf13bb944dc7b1f0528654a2e70e243e54bb6f" }
+thiserror.workspace = true
+
+[dev-dependencies]
+recite-compiler = { version = "0.1.0", git = "https://github.com/plethu/recite", rev = "6ddf13bb944dc7b1f0528654a2e70e243e54bb6f" }
+
+[lints]
+workspace = true

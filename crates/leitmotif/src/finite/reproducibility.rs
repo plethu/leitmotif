@@ -1,5 +1,6 @@
 use std::path::Path;
 
+use base16ct::lower;
 use serde::Serialize;
 use serde_json::Value as JsonValue;
 use sha2::{Digest, Sha256};
@@ -20,8 +21,8 @@ struct ModelDefinition<'a> {
 impl Model {
     pub(super) fn semantic_id(&self) -> Result<String, Error> {
         Ok(format!(
-            "sha256:{:x}",
-            Sha256::digest(self.canonical_definition()?)
+            "sha256:{}",
+            lower::encode_string(&Sha256::digest(self.canonical_definition()?))
         ))
     }
 

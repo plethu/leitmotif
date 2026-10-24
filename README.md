@@ -12,8 +12,8 @@ be broken, and get a sequence of events showing how. I'd like this to make compl
 stories easier to write, including ones where people lie or nobody has the whole
 picture.
 
-It's still an early prototype. Recite and engine integrations are planned; for now, you
-can
+It's still an early prototype. A compiled Recite guard adapter is available;
+engine integrations are planned. For now, you can
 [try the town and mystery examples](https://github.com/plethu/leitmotif/blob/main/docs/guide.md)
 from a checkout.
 

@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["crates/leitmotif"]
+members = ["crates/leitmotif", "crates/leitmotif-recite"]
 
 [workspace.package]
 version = "0.1.0-alpha.0"
@@ -16,7 +16,8 @@ thiserror = "2.0.18"
 serde_json = "1.0.149"
 clap = { version = "4.6.1", features = ["derive"] }
 
-sha2 = "0.10.9"
+sha2 = "0.11.1"
+base16ct = { version = "1.0.0", features = ["alloc"] }
 
 [workspace.lints.rust]
 unsafe_code = "forbid"

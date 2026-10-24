@@ -80,3 +80,30 @@ process status.
 
 For state-space measurements, see [Measuring synthetic towns](scaling.md).
 For development commands, see [CONTRIBUTING.md](../CONTRIBUTING.md).
+
+## Compiled Recite guards
+
+The `leitmotif-recite` workspace crate binds compiled Recite calls to finite facts.
+It pins Recite compiler/runtime revision
+`6ddf13bb944dc7b1f0528654a2e70e243e54bb6f`; the core library has no Recite dependency.
+
+Register exact `CompiledConditionCall` values with `Bindings::bind_bool` or
+`bind_enum`, passing a typed `FactHandle`. Enum facts must encode their finite
+values as symbols matching Recite variants. Function names and typed arguments
+both identify a binding: `ready(player)` and `ready("player")` are distinct calls.
+
+Pass a compiled Boolean expression and its containing row's source-map span to
+`Bindings::guard`. The returned `Predicate` works with ordinary finite analysis.
+For compiled `:match` scrutinees, `Bindings::enum_is` builds a predicate for one
+variant. Lowering validates every branch, including branches that evaluation
+could skip; missing bindings, wrong result kinds and unsupported trees return
+source-linked errors. Compiled expressions and their lowered binary predicates
+are each limited to 128 child edges per path. A deeply nested, wide expression
+can fit Recite's limit while exceeding the adapter's binary-depth limit; the
+adapter rejects it before constructing an unsafe tree.
+
+`Bindings::context(&model, &state)` implements Recite's `DialogueContext` over the
+same immutable finite host assignment. The real runtime owns short-circuit
+traversal and captures choice availability when it emits a prompt. A later host
+state change does not rewrite that pending prompt's captured availability. The
+adapter does not parse dialogue or model dialogue control flow and effects.
