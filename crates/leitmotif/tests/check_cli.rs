@@ -113,7 +113,7 @@ fn town_json_contains_reachable_endings_safety_and_static_feasibility() {
     for ending in ["ending_a", "ending_d"] {
         assert_eq!(
             report[ending]["schema_version"],
-            "leitmotif.experimental.v1"
+            leitmotif::EXPERIMENTAL_SCHEMA_VERSION
         );
         assert_eq!(report[ending]["context"], "town");
         assert_eq!(report[ending]["conclusion"]["kind"], "reached");
