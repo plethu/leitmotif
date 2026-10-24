@@ -53,7 +53,7 @@ jobs:
         with:
           install_args:
             rust just python cargo:cargo-nextest cargo:cargo-deny cargo:cargo-machete
-            cargo:cargo-llvm-cov
+            cargo:cargo-llvm-cov github:Z3Prover/z3
       - run: just core-check
       - run: just supply-chain
       - run: just coverage

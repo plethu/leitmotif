@@ -12,12 +12,17 @@ keywords = ["narrative", "verification", "state-machine", "game", "mystery"]
 categories = ["game-development", "development-tools"]
 publish = false
 
+[features]
+default = []
+smt = ["dep:rsmt2"]
+
 [dependencies]
 serde.workspace = true
 thiserror.workspace = true
 serde_json.workspace = true
 sha2.workspace = true
 base16ct.workspace = true
+rsmt2 = { workspace = true, optional = true }
 
 [dev-dependencies]
 clap = { workspace = true, features = ["wrap_help"] }
@@ -28,3 +33,7 @@ workspace = true
 [[test]]
 name = "town_contracts"
 path = "examples/support/town_contracts.rs"
+
+[[example]]
+name = "smt_comparison"
+required-features = ["smt"]

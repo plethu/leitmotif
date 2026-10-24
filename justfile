@@ -59,3 +59,7 @@ demo *args:
 # Repeat isolated release-mode town measurements and emit JSON Lines.
 town-scaling *args:
     python scripts/measure_town.py "$@"
+
+# Compare optional SMT classification with complete finite enumeration.
+smt-comparison *args:
+    cargo run --locked --release -p leitmotif --features smt --example smt_comparison -- "$@"

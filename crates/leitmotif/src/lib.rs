@@ -34,6 +34,9 @@
 
 mod finite;
 
+#[cfg(feature = "smt")]
+pub use finite::smt;
+
 pub use finite::{
     Assignment, ClassificationCoverage, ClassificationLimits, Domain, EXPERIMENTAL_SCHEMA_VERSION,
     Error, ErrorKind, Fact, FactHandle, FactInfo, FactKind, FactValue, HypothesisConclusion,
