@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
 use std::path::PathBuf;
 
 use serde::Serialize;
@@ -54,7 +54,7 @@ impl Model {
             transitions: Vec::new(),
             invariants: Vec::new(),
         };
-        let mut seen = BTreeSet::new();
+        let mut seen = BTreeMap::new();
         for transition in builder.transitions {
             let compiled = model.compile_transition(transition, &mut seen)?;
             model.transitions.push(compiled);

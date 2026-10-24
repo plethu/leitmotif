@@ -24,3 +24,7 @@ clap.workspace = true
 
 [lints]
 workspace = true
+
+[[test]]
+name = "town_contracts"
+path = "examples/support/town_contracts.rs"

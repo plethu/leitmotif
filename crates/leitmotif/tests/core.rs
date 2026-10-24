@@ -837,3 +837,43 @@ fn classification_reports_are_deterministic_and_partial_inconsistency_is_unprove
     );
     assert_eq!(first.conclusion, HypothesisConclusion::Inconsistent);
 }
+
+#[test]
+fn duplicate_property_diagnostics_retain_both_author_locations() {
+    let first_line = line!() + 1;
+    let first = Invariant::new("conflict", Predicate::constant(true));
+    let second_line = line!() + 1;
+    let second = Invariant::new("conflict", Predicate::constant(false));
+    let error = ModelBuilder::new("invariants")
+        .unwrap()
+        .with_invariant(first)
+        .with_invariant(second)
+        .build()
+        .unwrap_err();
+    let ErrorKind::DuplicateId { kind, original, .. } = &error.kind else {
+        panic!("duplicate invariant expected");
+    };
+    assert_eq!(*kind, "invariant");
+    assert_eq!(original.line, first_line);
+    assert_eq!(error.provenance.line, second_line);
+    assert!(
+        error
+            .to_string()
+            .contains(&format!("first declared at {original}"))
+    );
+
+    let first_line = line!() + 1;
+    let first = Premise::new("conflict", Predicate::constant(true));
+    let second_line = line!() + 1;
+    let second = Premise::new("conflict", Predicate::constant(false));
+    let model = ModelBuilder::new("premises").unwrap().build().unwrap();
+    let error = model
+        .classify(&Predicate::constant(true), &[first, second], CLASSIFY)
+        .unwrap_err();
+    let ErrorKind::DuplicateId { kind, original, .. } = &error.kind else {
+        panic!("duplicate premise expected");
+    };
+    assert_eq!(*kind, "premise");
+    assert_eq!(original.line, first_line);
+    assert_eq!(error.provenance.line, second_line);
+}

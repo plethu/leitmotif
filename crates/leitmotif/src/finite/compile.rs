@@ -1,4 +1,4 @@
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 use super::{
     Assignment, Error, ErrorKind, FactKind, FactValue, Model, NamedPredicate, Predicate,
@@ -125,7 +125,7 @@ impl Model {
     pub(super) fn compile_transition(
         &self,
         transition: Transition,
-        seen: &mut BTreeSet<String>,
+        seen: &mut BTreeMap<String, Source>,
     ) -> Result<CompiledTransition, Error> {
         unique_name(seen, &transition.id, "transition", &transition.provenance)?;
         let guard = self.compile_predicate(&transition.guard)?;

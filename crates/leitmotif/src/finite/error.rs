@@ -93,12 +93,14 @@ pub enum ErrorKind {
         reason: &'static str,
     },
     /// Stable identifiers must be unique in their declaration category.
-    #[error("duplicate {kind} identifier {id}")]
+    #[error("duplicate {kind} identifier {id}; first declared at {original}")]
     DuplicateId {
         /// Declaration category.
         kind: &'static str,
         /// Repeated identifier.
         id: String,
+        /// Location of the original declaration.
+        original: Box<Source>,
     },
     /// A predicate or assignment used a handle from another builder.
     #[error("foreign handle for fact {0}")]

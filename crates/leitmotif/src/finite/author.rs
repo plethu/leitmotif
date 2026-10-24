@@ -1,5 +1,8 @@
 use std::path::PathBuf;
-use std::{collections::BTreeSet, marker::PhantomData};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    marker::PhantomData,
+};
 
 use super::{
     Assignment, Domain, Error, ErrorKind, Fact, FactHandle, FactInfo, Model, Predicate, Source,
@@ -133,11 +136,12 @@ impl ModelBuilder {
     pub fn fact<F: Fact>(&mut self) -> Result<FactHandle<F>, Error> {
         let provenance = Source::caller();
         validate_name(F::KEY, "fact", &provenance)?;
-        if self.facts.iter().any(|fact| fact.key == F::KEY) {
+        if let Some(original) = self.facts.iter().find(|fact| fact.key == F::KEY) {
             return Err(Error::new(
                 ErrorKind::DuplicateId {
                     kind: "fact",
                     id: F::KEY.to_owned(),
+                    original: Box::new(original.provenance.clone()),
                 },
                 provenance,
             ));
@@ -223,20 +227,22 @@ pub(super) fn validate_name(
 }
 
 pub(super) fn unique_name(
-    seen: &mut BTreeSet<String>,
+    seen: &mut BTreeMap<String, Source>,
     name: &str,
     kind: &'static str,
     provenance: &Source,
 ) -> Result<(), Error> {
     validate_name(name, kind, provenance)?;
-    if !seen.insert(name.to_owned()) {
+    if let Some(original) = seen.get(name) {
         return Err(Error::new(
             ErrorKind::DuplicateId {
                 kind,
                 id: name.to_owned(),
+                original: Box::new(original.clone()),
             },
             provenance.clone(),
         ));
     }
+    seen.insert(name.to_owned(), provenance.clone());
     Ok(())
 }

@@ -1,4 +1,4 @@
-# Measuring synthetic towns
+# Measuring towns
 
 Run from a checkout on Linux with `/proc` mounted:
 
@@ -59,3 +59,30 @@ its play time, or establish performance for arbitrary predicates and models.
 Compare repeated runs with matching parameters, bounds, toolchain and build
 flags. The command reports observations and imposes no runtime or memory
 ceiling, so choose bounds suitable for the machine.
+
+To measure the original harbour stories, use the same runner:
+
+```sh
+mise exec -- just town-scaling --fixture composed --query unreachable --repeat 3
+mise exec -- just town-scaling --fixture composed --query goal
+mise exec -- just town-scaling --fixture composed --query alternative
+```
+
+The keeper shares a storm warning, enabling the ferryman to prepare a departure.
+The last oil can fuel the ferry or light the keeper's beacon. Spending it removes
+the other story's action. Shelter and departure are exclusive endings. The
+character modules receive shared typed inputs from one composition root; they
+register local facts and author their events independently. The existing
+`ModelBuilder` validates their combined declarations, including conflicting keys.
+A duplicate diagnostic retains both the original and offending author locations.
+
+For this fixture, `goal` means shelter and `alternative` means departure.
+`unreachable` asks whether the immutable storm setting has changed, forcing full
+graph exploration. Explicit synthetic dimension arguments are rejected for the composed
+fixture; composed records have `parameters: null`. `authored_events` counts the
+named transition declarations (five here), while `coverage.discovered_states`
+counts complete reachable world assignments (six here). These are different
+graphs: a short list of authored events can induce many reachable combinations.
+The event count does not count playable hours or reachable paths. The composed
+fixture's fixed cost regression exhausts exactly six states at depth three;
+both ending witnesses take three events.

@@ -33,7 +33,11 @@ fn run(args: &[&str], expected_status: i32) -> Result<Output, Box<dyn Error>> {
 }
 
 fn measurement(local_domain: &str, args: &[&str]) -> Result<Value, Box<dyn Error>> {
-    let mut small_town = vec!["--threads", "2", "--local-domain", local_domain];
+    let mut small_town = if args.contains(&"composed") {
+        vec![]
+    } else {
+        vec!["--threads", "2", "--local-domain", local_domain]
+    };
     small_town.extend_from_slice(args);
     let output = run(&small_town, 0)?;
     if !output.stderr.is_empty() {
@@ -162,4 +166,47 @@ fn invalid_parameters_fail_without_emitting_measurement_json() {
             .unwrap()
             .contains("invalid value")
     );
+}
+
+#[test]
+fn composed_stories_report_authored_counts_and_reachable_graph_separately() {
+    let report = measurement("2", &["--fixture", "composed"]).unwrap();
+    assert_eq!(report["fixture"], "composed");
+    assert!(report["parameters"].is_null());
+    assert_eq!(report["authored_events"], 5);
+    assert_eq!(report["authored_facts"], 6);
+    assert_eq!(report["coverage"]["evaluated_states"], 6);
+    assert_eq!(report["coverage"]["exhausted"], true);
+    for query in ["goal", "alternative"] {
+        let report = measurement("2", &["--fixture", "composed", "--query", query]).unwrap();
+        assert_eq!(report["conclusion"], "reached");
+        assert_eq!(report["witness_length"], 3);
+    }
+    let output = run(&["--query", "alternative"], 1).unwrap();
+    assert!(output.stdout.is_empty());
+    assert!(
+        String::from_utf8(output.stderr)
+            .unwrap()
+            .contains("only for the composed fixture")
+    );
+}
+
+#[test]
+fn composed_fixture_rejects_explicit_synthetic_dimensions() {
+    for (flag, value) in [
+        ("--threads", "6"),
+        ("--threads", "0"),
+        ("--local-domain", "3"),
+        ("--local-domain", "0"),
+        ("--coupling", "0"),
+        ("--coupling", "999"),
+        ("--resource", "unlimited"),
+        ("--resource", "single-permit"),
+    ] {
+        let output = run(&["--fixture", "composed", flag, value], 1).unwrap();
+        assert!(output.stdout.is_empty());
+        let diagnostic = String::from_utf8(output.stderr).unwrap();
+        assert!(diagnostic.contains(flag));
+        assert!(diagnostic.contains("only to the synthetic fixture"));
+    }
 }

@@ -1,4 +1,4 @@
-use std::collections::BTreeSet;
+use std::collections::BTreeMap;
 
 use super::{
     ClassificationCoverage, ClassificationLimits, EXPERIMENTAL_SCHEMA_VERSION, Error, ErrorKind,
@@ -126,7 +126,7 @@ impl Model {
         limits: ClassificationLimits,
     ) -> Result<HypothesisReport, Error> {
         let compiled_hypothesis = self.compile_predicate(hypothesis)?;
-        let mut seen = BTreeSet::new();
+        let mut seen = BTreeMap::new();
         let mut compiled_premises = Vec::new();
         let mut descriptions = Vec::new();
         for premise in premises {

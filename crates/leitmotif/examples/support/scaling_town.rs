@@ -1,3 +1,7 @@
+#[cfg(test)]
+#[path = "tests/scaling.rs"]
+mod tests;
+
 use std::{error::Error, iter};
 
 use leitmotif::{
@@ -9,7 +13,7 @@ use serde::Serialize;
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
 /// Shared-resource policy for the synthetic family.
-pub enum Resource {
+pub(super) enum Resource {
     /// Threads advance without competing for a permit.
     Unlimited,
     /// One thread holds the permit until it returns to idle.
@@ -18,7 +22,7 @@ pub enum Resource {
 
 #[derive(Clone, Copy, Debug, Serialize)]
 /// Validated dimensions of one synthetic town.
-pub struct Parameters {
+pub(super) struct Parameters {
     threads: usize,
     local_domain: usize,
     coupling: usize,
@@ -162,7 +166,7 @@ fn register<F: Fact<Value = Phase<SIZE>>, const SIZE: usize>(
 }
 
 /// A cyclic synthetic graph with a collective goal and a closed ending.
-pub struct Town {
+pub(super) struct Town {
     pub(super) model: Model,
     pub(super) initial: State,
     pub(super) goal: Predicate,

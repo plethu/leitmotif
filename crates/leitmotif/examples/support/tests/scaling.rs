@@ -1,10 +1,7 @@
 //! Known finite graphs and replayable witnesses for the scaling fixture.
 
-#[path = "../examples/support/scaling_town.rs"]
-mod scaling_town;
-
+use super::{Parameters, Resource, Town};
 use leitmotif::{ReachabilityConclusion, SearchLimits};
-pub use scaling_town::{Parameters, Resource, Town};
 
 const LIMITS: SearchLimits = SearchLimits {
     max_states: 1024,
