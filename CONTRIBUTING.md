@@ -15,8 +15,7 @@ MIT OR Apache-2.0.
 CI always runs the lightweight quality lane: TOML, spelling, workflow linting,
 and CI policy checks. On pushes and pull requests, the Rust and dependency lane
 is skipped only when every changed path is allowlisted as documentation-only by
-the repository's CI scope policy. `README.md` requires Rust checks because the
-library includes it with `include_str!` and compiles its example as a doctest.
+the repository's CI scope policy.
 Unknown paths require the full checks. Scheduled and manually dispatched runs
 always run the full checks.
 

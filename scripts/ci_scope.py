@@ -10,7 +10,7 @@ DOC_FILES = frozenset({"AGENTS.md", "ATTRIBUTIONS.md", "CONTRIBUTING.md"})
 
 
 def needs_rust(paths):
-    """Unknown inputs and empty diffs receive full coverage; README is compiled."""
+    """Unknown inputs and empty diffs receive full coverage."""
     return not paths or any(
         path not in DOC_FILES
         and not (path.startswith("docs/") and path.endswith(".md"))
