@@ -743,6 +743,7 @@ fn predicates_remain_inspectable_and_implication_uses_shared_evaluator() {
 fn assert_caller_sources(model: &Model, handle: &FactHandle<Learned>) {
     let caller = Location::caller();
     let expected = Source {
+        portable_file: Some(caller.file().to_owned()),
         file: caller.file().to_owned(),
         line: caller.line(),
         column: caller.column(),

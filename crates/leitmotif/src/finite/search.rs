@@ -166,8 +166,11 @@ impl Model {
         };
         Ok(ReachabilityReport {
             schema_version: EXPERIMENTAL_SCHEMA_VERSION.to_owned(),
+            tool_version: env!("CARGO_PKG_VERSION").to_owned(),
+            model_id: self.fingerprint.clone(),
+            initial: self.snapshot_values(&initial.values),
             context: self.context.clone(),
-            target: describe(target),
+            target: self.portable_predicate(describe(target)),
             coverage: search.coverage,
             conclusion,
         })
@@ -219,6 +222,9 @@ impl Model {
         };
         Ok(InvariantReport {
             schema_version: EXPERIMENTAL_SCHEMA_VERSION.to_owned(),
+            tool_version: env!("CARGO_PKG_VERSION").to_owned(),
+            model_id: self.fingerprint.clone(),
+            initial: self.snapshot_values(&initial.values),
             context: self.context.clone(),
             invariants: self
                 .invariants

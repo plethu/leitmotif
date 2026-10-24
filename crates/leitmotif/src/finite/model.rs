@@ -1,4 +1,5 @@
 use std::collections::{BTreeMap, BTreeSet};
+use std::path::PathBuf;
 
 use serde::Serialize;
 
@@ -34,6 +35,8 @@ pub struct State {
 #[derive(Debug)]
 pub struct Model {
     pub(super) context: String,
+    pub(super) source_root: Option<PathBuf>,
+    pub(super) fingerprint: String,
     pub(super) owner: Identity,
     pub(super) facts: Vec<FactInfo>,
     pub(super) transitions: Vec<CompiledTransition>,
@@ -44,6 +47,8 @@ impl Model {
     pub(super) fn compile(builder: ModelBuilder) -> Result<Self, Error> {
         let mut model = Self {
             context: builder.context,
+            source_root: builder.source_root,
+            fingerprint: String::new(),
             owner: builder.owner,
             facts: builder.facts,
             transitions: Vec::new(),
@@ -67,6 +72,8 @@ impl Model {
                 predicate,
             });
         }
+        model.fingerprint = model.semantic_id()?;
+        model.portable_sources();
         Ok(model)
     }
 

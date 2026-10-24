@@ -5,6 +5,7 @@ mod error;
 mod model;
 mod predicate;
 mod reports;
+mod reproducibility;
 mod search;
 mod value;
 

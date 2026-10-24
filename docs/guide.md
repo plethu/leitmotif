@@ -45,12 +45,28 @@ coverage before inferring non-necessity. `Required`, `RuledOut`, and
 `Inconsistent` need complete enumeration. An unfinished search with no supporting
 witness is inconclusive.
 
-JSON reports use the experimental schema `leitmotif.experimental.v1`. They
-include queries, supplied premises, sources, and witnesses. Neither the format
-nor internal state serialization is a stable persistence contract. Keep the
-source revision and lockfile alongside results; reports do not yet contain a
-model fingerprint. Inconsistency reports the supplied premise set, not a minimized
-unsatisfiable core.
+JSON reports use the experimental schema `leitmotif.experimental.v2`. They
+include the library version, model fingerprint, query, explicit premises, limits,
+coverage and evidence. Reachability and safety reports retain the complete
+initial assignment, including settings, even when no witness exists.
+
+The SHA-256 model fingerprint covers the context, fact keys, kinds and ordered
+finite domains, transitions (IDs, guards and effects), and invariants, preserving
+declaration order. It excludes source locations, runtime handle ownership and
+run inputs. Compare the query, premises, initial assignment and limits as well as
+the fingerprint when comparing runs. A fingerprint identifies a model; it cannot
+reconstruct it. Retain the Rust model source revision, Cargo.lock and toolchain
+alongside results to reproduce a check.
+
+Compiler source locations remain in `file`. Relative compiler paths also appear
+in `portable_file`; use `ModelBuilder::with_source_root` to obtain checkout-relative
+aliases for absolute paths under an explicit root. Absolute paths outside that
+root retain their originals without a relative alias. Locations do not affect
+the model fingerprint, so relocating a checkout does not change model identity.
+
+The report format remains experimental, with no stable persistence promise or
+state deserialization API. Inconsistency reports the supplied premise set, not a
+minimized unsatisfiable core.
 
 ## Exit codes
 

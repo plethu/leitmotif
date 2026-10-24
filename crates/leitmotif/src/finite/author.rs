@@ -1,3 +1,4 @@
+use std::path::PathBuf;
 use std::{collections::BTreeSet, marker::PhantomData};
 
 use super::{
@@ -88,6 +89,7 @@ impl Premise {
 #[derive(Debug)]
 pub struct ModelBuilder {
     pub(super) context: String,
+    pub(super) source_root: Option<PathBuf>,
     pub(super) owner: Identity,
     pub(super) facts: Vec<FactInfo>,
     pub(super) transitions: Vec<Transition>,
@@ -105,11 +107,21 @@ impl ModelBuilder {
         validate_name(&context, "context", &Source::caller())?;
         Ok(Self {
             context,
+            source_root: None,
             owner: Identity::new(),
             facts: Vec::new(),
             transitions: Vec::new(),
             invariants: Vec::new(),
         })
+    }
+
+    /// Configures the checkout root for portable report source references.
+    /// Original compiler locations are always retained. Paths outside this root
+    /// retain their original location without a relative alias.
+    #[must_use]
+    pub fn with_source_root(mut self, root: impl Into<PathBuf>) -> Self {
+        self.source_root = Some(root.into());
+        self
     }
 
     /// Registers a fact and validates its explicitly finite encoding domain.

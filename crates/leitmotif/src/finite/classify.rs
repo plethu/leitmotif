@@ -132,17 +132,21 @@ impl Model {
         for premise in premises {
             unique_name(&mut seen, &premise.id, "premise", &premise.provenance)?;
             compiled_premises.push(self.compile_predicate(&premise.predicate)?);
-            descriptions.push(NamedPredicate {
+            let mut description = NamedPredicate {
                 id: premise.id.clone(),
                 predicate: describe(&premise.predicate),
                 provenance: premise.provenance.clone(),
-            });
+            };
+            self.portable_named(&mut description);
+            descriptions.push(description);
         }
         let evidence = self.enumerate(&compiled_hypothesis, &compiled_premises, limits)?;
         Ok(HypothesisReport {
             schema_version: EXPERIMENTAL_SCHEMA_VERSION.to_owned(),
+            tool_version: env!("CARGO_PKG_VERSION").to_owned(),
+            model_id: self.fingerprint.clone(),
             context: self.context.clone(),
-            hypothesis: describe(hypothesis),
+            hypothesis: self.portable_predicate(describe(hypothesis)),
             premises: descriptions,
             conclusion: evidence.conclusion(),
             coverage: evidence.coverage,
