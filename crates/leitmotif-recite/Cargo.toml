@@ -30,3 +30,8 @@ path = "examples/support/archive_contracts.rs"
 
 [lints]
 workspace = true
+
+[[example]]
+name = "harbour-dialogue"
+path = "../leitmotif/examples/support/harbour_dialogue_fixture.rs"
+test = true

@@ -1,7 +1,7 @@
 use super::{Shared, keeper::Warning};
 use leitmotif::{Error, Fact, FactHandle, ModelBuilder, Transition};
 
-pub(super) struct FerryReady;
+pub(in super::super) struct FerryReady;
 impl Fact for FerryReady {
     type Value = bool;
     const KEY: &'static str = "ferryman.ready";

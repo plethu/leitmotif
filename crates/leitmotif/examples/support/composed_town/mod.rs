@@ -31,12 +31,12 @@ impl Domain for Ending {
         )
     }
 }
-struct TownEnding;
+pub(super) struct TownEnding;
 impl Fact for TownEnding {
     type Value = Ending;
     const KEY: &'static str = "harbour.ending";
 }
-struct Oil;
+pub(super) struct Oil;
 impl Fact for Oil {
     type Value = bool;
     const KEY: &'static str = "harbour.oil_available";
@@ -70,6 +70,14 @@ pub(super) struct KeeperProjection {
     pub(super) beacon: bool,
 }
 
+/// Typed handles lent to a consumer while this owner constructs its model.
+pub(super) struct Queries {
+    pub(super) ending: FactHandle<TownEnding>,
+    pub(super) oil: FactHandle<Oil>,
+    pub(super) beacon: FactHandle<keeper::Beacon>,
+    pub(super) ferry: FactHandle<ferryman::FerryReady>,
+}
+
 /// Separately authored harbour stories and their ending queries.
 pub(super) struct Town {
     pub(super) model: Model,
@@ -84,22 +92,36 @@ pub(super) struct Town {
 /// # Errors
 /// Returns invalid fact, event or invariant declarations.
 pub(super) fn town() -> Result<Town, Error> {
-    project(&Projection {
-        harbour: HarbourProjection {
-            ending: Ending::Open,
-            oil: true,
-            storm: false,
-        },
-        keeper: KeeperProjection {
-            warning: false,
-            beacon: false,
-        },
-        ferry: false,
-    })
+    project(&Projection::default())
+}
+
+impl Default for Projection {
+    fn default() -> Self {
+        Self {
+            harbour: HarbourProjection {
+                ending: Ending::Open,
+                oil: true,
+                storm: false,
+            },
+            keeper: KeeperProjection {
+                warning: false,
+                beacon: false,
+            },
+            ferry: false,
+        }
+    }
 }
 
 /// Builds the same authored model around a complete typed host assignment.
 pub(super) fn project(projection: &Projection) -> Result<Town, Error> {
+    project_with(projection, |_| ()).map(|(town, ())| town)
+}
+
+/// Lends the existing typed declarations without introducing a second model.
+pub(super) fn project_with<Q>(
+    projection: &Projection,
+    bind: impl FnOnce(&Queries) -> Q,
+) -> Result<(Town, Q), Error> {
     let mut builder = ModelBuilder::new("storm_harbour")?;
     let ending = builder.fact::<TownEnding>()?;
     let oil = builder.fact::<Oil>()?;
@@ -132,19 +154,29 @@ pub(super) fn project(projection: &Projection) -> Result<Town, Error> {
             keeper.beacon.is(true).implies(keeper.warning.is(true)),
         ))
         .build()?;
+    let queries = Queries {
+        ending,
+        oil: shared.oil,
+        beacon: keeper.beacon,
+        ferry: ferryman.ready,
+    };
     let initial = model.state([
-        ending.set(projection.harbour.ending),
-        shared.oil.set(projection.harbour.oil),
+        queries.ending.set(projection.harbour.ending),
+        queries.oil.set(projection.harbour.oil),
         storm.set(projection.harbour.storm),
         keeper.warning.set(projection.keeper.warning),
-        keeper.beacon.set(projection.keeper.beacon),
-        ferryman.ready.set(projection.ferry),
+        queries.beacon.set(projection.keeper.beacon),
+        queries.ferry.set(projection.ferry),
     ])?;
-    Ok(Town {
-        model,
-        initial,
-        sheltered: ending.is(Ending::Sheltered),
-        departed: ending.is(Ending::Departed),
-        unreachable: storm.is(true),
-    })
+    let bound = bind(&queries);
+    Ok((
+        Town {
+            model,
+            initial,
+            sheltered: queries.ending.is(Ending::Sheltered),
+            departed: queries.ending.is(Ending::Departed),
+            unreachable: storm.is(true),
+        },
+        bound,
+    ))
 }

@@ -6,7 +6,7 @@ impl Fact for Warning {
     type Value = bool;
     const KEY: &'static str = "keeper.warning_shared";
 }
-pub(super) struct Beacon;
+pub(in super::super) struct Beacon;
 impl Fact for Beacon {
     type Value = bool;
     const KEY: &'static str = "keeper.beacon_lit";
