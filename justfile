@@ -55,3 +55,7 @@ verify: check
 # Run the Rust-authored demonstration fixtures.
 demo *args:
     cargo run --locked -p leitmotif --example check -- "$@"
+
+# Repeat isolated release-mode town measurements and emit JSON Lines.
+town-scaling *args:
+    python scripts/measure_town.py "$@"

@@ -33,4 +33,8 @@ workflows:
 ci-policy:
     python -m unittest discover -s tests/ci -v
 
-check: fmt-check lint spelling workflows ci-policy
+# Keep measurement collection failures out of successful benchmark records.
+tooling-tests:
+    python -m unittest discover -s tests/tooling -v
+
+check: fmt-check lint spelling workflows ci-policy tooling-tests

@@ -78,4 +78,5 @@ Intentional failure fixtures return nonzero. In a combined report, an inconclusi
 result takes precedence over failure; inspect the individual conclusions as well as the
 process status.
 
+For state-space measurements, see [Measuring synthetic towns](scaling.md).
 For development commands, see [CONTRIBUTING.md](../CONTRIBUTING.md).
