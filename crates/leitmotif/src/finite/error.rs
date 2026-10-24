@@ -4,7 +4,7 @@ use std::{fmt, panic::Location};
 use serde::Serialize;
 use thiserror::Error;
 
-use super::Value;
+use super::{Snapshot, Value};
 
 /// Authoring location captured by caller-tracked constructors.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize)]
@@ -128,6 +128,14 @@ pub enum ErrorKind {
     /// Settings cannot be transition effects.
     #[error("transition writes setting {0}")]
     SettingWrite(String),
+    /// A permitted ending matched a reachable state outside the terminal predicate.
+    #[error("permitted ending {ending} matches a nonterminal state")]
+    NonterminalEnding {
+        /// Ending whose declaration supplied the invalid completion predicate.
+        ending: String,
+        /// Full reachable assignment demonstrating the mismatch.
+        counterexample: Box<Snapshot>,
+    },
     /// Checked internal consistency failed instead of panicking.
     #[error("invalid compiled model: {0}")]
     InvalidModel(&'static str),

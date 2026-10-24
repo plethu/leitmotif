@@ -2,6 +2,9 @@ use std::collections::BTreeMap;
 
 use serde::Serialize;
 
+mod progression;
+pub use progression::{ProgressionConclusion, ProgressionReport};
+
 use super::{Source, Value};
 
 /// Experimental report format; no stable persistence contract is promised yet.
@@ -34,7 +37,7 @@ pub struct SearchCoverage {
     pub evaluated_states: usize,
     /// Deepest evaluated distance, absent if no state was evaluated.
     pub deepest_evaluated: Option<usize>,
-    /// True only when all reachable states were evaluated and expanded.
+    /// True only when the query's reachable state space is exhausted.
     pub exhausted: bool,
     /// A distinct successor could not be admitted within the state budget.
     pub state_limit_hit: bool,

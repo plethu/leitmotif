@@ -6,7 +6,7 @@ use super::{
     Source, Value,
     author::unique_name,
     compile::{CompiledPredicate, describe},
-    search::increment,
+    exploration::increment,
 };
 
 /// Mixed-radix enumeration retains one candidate and never materializes the

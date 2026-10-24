@@ -38,7 +38,8 @@ pub use finite::{
     Assignment, ClassificationCoverage, ClassificationLimits, Domain, EXPERIMENTAL_SCHEMA_VERSION,
     Error, ErrorKind, Fact, FactHandle, FactInfo, FactKind, FactValue, HypothesisConclusion,
     HypothesisReport, Invariant, InvariantConclusion, InvariantReport, Model, ModelBuilder,
-    NamedPredicate, Predicate, PredicateDescription, PredicateExpression, PredicateKind, Premise,
+    NamedPredicate, PermittedEnding, Predicate, PredicateDescription, PredicateExpression,
+    PredicateKind, Premise, ProgressionConclusion, ProgressionQuery, ProgressionReport,
     ReachabilityConclusion, ReachabilityReport, SearchCoverage, SearchLimits, Snapshot, Source,
     State, Trace, TraceStep, Transition, TransitionInfo, Value,
 };

@@ -81,6 +81,47 @@ process status.
 For state-space measurements, see [Measuring synthetic towns](scaling.md).
 For development commands, see [CONTRIBUTING.md](../CONTRIBUTING.md).
 
+## Progression traps
+
+`Model::progression` checks whether each reachable nonterminal state has a route
+to an explicitly permitted ending. Declare the terminal stopping predicate and
+named permitted predicates with `ProgressionQuery::new` and
+`PermittedEnding::new`. An intentional failure ending can be permitted even when
+a preferred ending is no longer reachable.
+
+```rust
+let query = ProgressionQuery::new(
+    ending_a.clone().or(ending_b.clone()),
+    [
+        PermittedEnding::new("saved", ending_a),
+        PermittedEnding::new("evacuated", ending_b),
+    ],
+)?;
+let report = model.progression(&initial, &query, limits)?;
+```
+
+Terminal states stop this query even if the model declares outgoing transitions.
+Permitted predicates must identify terminal completions: a match at a visited
+nonterminal returns `ErrorKind::NonterminalEnding`, with the ending's declaration
+source and a full counterexample assignment. Validation checks the queried
+reachable states; it does not enumerate every possible assignment. Named endings
+may overlap, while duplicate or blank names are rejected. An empty permitted set
+is valid.
+
+On a complete queried graph, `Trap` returns the number of nonterminal states
+without any permitted route and a shortest entry trace to the first one in BFS
+order. `NoTraps` says every reachable nonterminal has such a route. Terminal
+states are excluded from that count, including disallowed terminals, so an
+initial terminal can produce `NoTraps` even with no permitted ending. Neither
+verdict guarantees eventual completion or a winning strategy: a player can stay
+in an escapable cycle.
+
+Any state or depth truncation produces `Inconclusive`; absence of a route in the
+partial graph is not proof of a trap. Reports retain the initial assignment,
+model identity, terminal predicate, all considered endings, bounds and coverage.
+The reverse pass retains admitted edges, including cycles and converging paths;
+its memory grows with states and edges, rather than states alone.
+
 ## Compiled Recite guards
 
 The `leitmotif-recite` workspace crate binds compiled Recite calls to finite facts.
