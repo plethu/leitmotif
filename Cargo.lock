@@ -372,10 +372,13 @@ dependencies = [
 name = "leitmotif-recite"
 version = "0.1.0-alpha.0"
 dependencies = [
+ "clap",
  "leitmotif",
  "recite-compiler",
  "recite-core",
  "recite-runtime",
+ "serde",
+ "serde_json",
  "thiserror",
 ]
 

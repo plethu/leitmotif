@@ -14,7 +14,10 @@ Contributions are under MIT OR Apache-2.0.
 
 Coverage uses the separately pinned nightly compiler to measure branches. The gate
 requires 90% line and 95% branch coverage across library and example code; run it at
-integration checkpoints, using focused tests during development.
+integration checkpoints, using focused tests during development. The quality lane also
+measures all project Python with pinned coverage.py, including subprocesses, and
+enforces the same line and branch thresholds with `just quality python-coverage`. Tests
+are not included in either language's production coverage totals.
 
 CI always runs the lightweight quality lane: Rust-independent formatting, Python and
 Markdown linting, TOML validation, spelling, workflow linting, and CI

@@ -95,7 +95,7 @@ fn value(snapshot: &Snapshot, key: &str) -> String {
     }
 }
 
-const fn action_name(action: &Action) -> &'static str {
+pub(super) const fn action_name(action: &Action) -> &'static str {
     match action {
         Action::Next => "next",
         Action::ApplyImmediate => "apply immediate",
@@ -109,7 +109,7 @@ const fn action_name(action: &Action) -> &'static str {
     }
 }
 
-fn outcome_name(outcome: &Outcome) -> String {
+pub(super) fn outcome_name(outcome: &Outcome) -> String {
     match outcome {
         Outcome::Delivered(DialogueEvent::Effect(request)) => {
             format!("{:?} {}", request.mode, request.function)

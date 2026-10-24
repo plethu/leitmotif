@@ -1,6 +1,6 @@
-//! Exercise the real consumer entry point in Cargo's example test harness.
+//! Exercise the human demonstration without parsing Cargo harness arguments.
 
 #[test]
-fn consumer_entrypoint_completes_the_faulty_and_corrected_demonstrations() {
-    super::main().unwrap();
+fn human_demonstration_completes_the_faulty_and_corrected_demonstrations() {
+    super::run().unwrap();
 }

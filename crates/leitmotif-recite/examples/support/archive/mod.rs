@@ -1,6 +1,8 @@
+mod cli;
 mod evidence;
 mod execution;
 mod exploration;
+mod export;
 mod facts;
 mod model;
 mod presentation;
@@ -102,3 +104,11 @@ mod exploration_tests;
 #[cfg(test)]
 #[path = "../../../tests/archive/replay.rs"]
 mod replay_tests;
+
+/// Runs the human demonstration or experimental JSON producer.
+///
+/// # Errors
+/// Returns invalid model, source, runtime, or output diagnostics.
+pub fn run_cli() -> Result<(), Box<dyn Error>> {
+    cli::run()
+}

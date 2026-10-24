@@ -33,8 +33,18 @@ workflows:
 ci-policy:
     python -m unittest discover -s tests/ci -v
 
-# Keep measurement collection failures out of successful benchmark records.
+# Check measurement collection and the serialized report consumer boundary.
 tooling-tests:
     python -m unittest discover -s tests/tooling -v
 
-check: fmt-check lint spelling workflows ci-policy tooling-tests
+# Measure all project Python, including child interpreters, without counting tests.
+python-coverage:
+    mkdir -p "${CARGO_TARGET_DIR:-target}/python-coverage"
+    coverage erase --data-file "${CARGO_TARGET_DIR:-target}/python-coverage/.coverage"
+    PYTHONPATH="$PWD" coverage run --data-file "${CARGO_TARGET_DIR:-target}/python-coverage/.coverage" -m unittest discover -s tests/ci -v
+    PYTHONPATH="$PWD" coverage run --data-file "${CARGO_TARGET_DIR:-target}/python-coverage/.coverage" -m unittest discover -s tests/tooling -v
+    coverage combine --data-file "${CARGO_TARGET_DIR:-target}/python-coverage/.coverage"
+    coverage json --data-file "${CARGO_TARGET_DIR:-target}/python-coverage/.coverage" -o "${CARGO_TARGET_DIR:-target}/python-coverage/report.json"
+    python scripts/coverage_gate.py --format python "${CARGO_TARGET_DIR:-target}/python-coverage/report.json"
+
+check: fmt-check lint spelling workflows python-coverage

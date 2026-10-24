@@ -1,0 +1,5 @@
+[tool.coverage.run]
+branch = true
+source = ["scripts"]
+parallel = true
+patch = ["subprocess"]

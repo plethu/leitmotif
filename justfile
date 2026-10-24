@@ -49,6 +49,7 @@ check:
     just core-check
     just supply-chain
     just coverage
+    just report-check
 
 verify: check
 
@@ -59,3 +60,9 @@ demo *args:
 # Repeat isolated release-mode town measurements and emit JSON Lines.
 town-scaling *args:
     python scripts/measure_town.py "$@"
+
+# Gate the actual archive runtime report with the independent serialized-data consumer.
+report-check:
+    mkdir -p "${CARGO_TARGET_DIR:-target}/report-consumer"
+    cargo run --locked -p leitmotif-recite --example archive -- --json > "${CARGO_TARGET_DIR:-target}/report-consumer/archive.json"
+    python scripts/report_consumer.py "${CARGO_TARGET_DIR:-target}/report-consumer/archive.json" --summary "${GITHUB_STEP_SUMMARY:-${CARGO_TARGET_DIR:-target}/report-consumer/summary.md}"

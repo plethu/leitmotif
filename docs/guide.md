@@ -251,3 +251,39 @@ conversation is Rust-authored `concat!` source checked by the real compiler, wit
 second parser. To reproduce evidence, retain the fixture source, lockfile and
 toolchain along with the displayed model identity, complete initial assignments,
 property, protocol and limits. The runtime evidence remains experimental.
+
+## Consume a runtime report in CI
+
+`mise exec -- just report-check` runs the corrected archive fixture and passes its JSON
+output to a separate Python process. CI runs this same gate in the Rust lane. The
+consumer reads serialized data; it neither imports Rust model types nor replays the
+runtime. Its GitHub job summary includes the finite protocol, model identity, coverage,
+initial assignments, and ordered failure witnesses.
+
+To inspect the intentionally faulty fixture locally:
+
+```sh
+mise exec -- cargo run --locked -p leitmotif-recite --example archive -- \
+  --json --variant faulty > /tmp/archive-report.json
+mise exec -- python scripts/report_consumer.py /tmp/archive-report.json \
+  --summary /tmp/archive-summary.md
+```
+
+The consumer exits 0 only when all eight distinct initial assignments are exhaustive,
+1 for a violation or runtime failure, and 2 for unsupported, incomplete, or invalid
+reports. Incomplete results take precedence over failures. The producer exits
+successfully when it writes a report; the independent consumer owns the CI verdict.
+Use `--max-nodes 0` to inspect truncation and `--variant unsupported` to exercise the
+actual guard adapter's rejection of an unsupported compiled artifact.
+
+Repository source references are checked against the checkout before becoming links
+or annotations. The embedded `archive.recite` is a virtual file: its text is attached
+to the summary, and its locations are labelled virtual rather than linked to unrelated
+Rust lines. Applied effects retain both their dialogue location and host declaration.
+
+The consumer accepts only `leitmotif.archive-ci.experimental.v1`. Its compatibility
+tests protect the fields it consumes: identity and scope, conclusions, coverage,
+assignments, ordered witness displays, and source references. Additive fields are
+ignored; incompatible versions and malformed required fields are rejected. This is an
+experimental display projection for this integration, not a stable contract for all
+Leitmotif reports or runtime session snapshots.

@@ -2,13 +2,9 @@
 #[path = "support/archive/mod.rs"]
 mod archive;
 
-pub use archive::run;
+pub use archive::{run, run_cli};
 use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {
-    run()
+    run_cli()
 }
-
-#[cfg(test)]
-#[path = "../tests/archive/consumer.rs"]
-mod consumer;
