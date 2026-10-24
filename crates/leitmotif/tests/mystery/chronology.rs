@@ -1,4 +1,9 @@
-use super::chronology::{Chronology, Occurrence};
+use std::collections::BTreeSet;
+
+use super::chronology::{
+    Before, Chronology, DisclosureRule, LIMITS, Occurrence, OrderError, Performance,
+};
+use leitmotif::{InvariantConclusion, SearchLimits, State, Value};
 
 #[test]
 fn repetitions_are_distinct_and_unordered() {
@@ -7,9 +12,6 @@ fn repetitions_are_distinct_and_unordered() {
     assert!(!chronology.requires_before(Occurrence::LockA, Occurrence::LockB));
     assert!(!chronology.requires_before(Occurrence::LockB, Occurrence::LockA));
 }
-
-use super::chronology::{Before, DisclosureRule, LIMITS, OrderError, Performance};
-use leitmotif::{InvariantConclusion, SearchLimits, State, Value};
 
 fn follow(performance: &Performance, actions: &[&str]) -> State {
     let mut state = performance.initial.clone();
@@ -307,7 +309,7 @@ fn fixed_disclosure_search_cost_and_safety() {
 #[test]
 fn action_sources_identify_distinct_authored_occurrences() {
     let performance = Performance::new(DisclosureRule::Unchecked).unwrap();
-    let declarations: std::collections::BTreeSet<_> = performance
+    let declarations: BTreeSet<_> = performance
         .model
         .transitions()
         .map(|transition| {
