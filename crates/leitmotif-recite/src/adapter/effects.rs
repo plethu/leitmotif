@@ -3,10 +3,12 @@ use recite_runtime::{DialogueEffectMode, DialogueEffectRequest};
 use thiserror::Error;
 
 mod blocking;
+mod deferred;
 mod immediate;
 mod registry;
 
 pub use blocking::BlockingEffects;
+pub use deferred::DeferredEffects;
 pub use immediate::ImmediateEffects;
 
 /// Evidence of one successful host application, retaining the exact emitted request.
@@ -63,6 +65,17 @@ pub enum EffectErrorKind {
     /// The session has no live pending blocking request to apply.
     #[error("no blocking effect is pending")]
     NoPending,
+    /// Deferred application requires a session that has delivered End.
+    #[error("dialogue has not ended")]
+    NotEnded,
+    /// No deferred occurrence exists at this position in the ended session.
+    #[error("deferred position {position} is outside the list of {len} occurrences")]
+    InvalidDeferredPosition {
+        /// Requested zero-based position.
+        position: usize,
+        /// Number of retained deferred occurrences.
+        len: usize,
+    },
     /// An exact effect signature was registered more than once.
     #[error("duplicate effect binding {0}")]
     Duplicate(String),

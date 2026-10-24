@@ -148,3 +148,25 @@ again; a domain guard such as "item not yet granted" can prevent a repeated writ
 The adapter has no delivery ledger or general exactly-once guarantee. Recite's
 restore-only delivery marker is absent from session snapshots: byte-equal
 snapshots do not imply equal next deliveries.
+
+## Deferred host requests
+
+`DeferredEffects::new(&model)` binds deferred declarations to host transitions.
+Recite alone accumulates the reached requests and returns them in
+`DialogueEvent::End { deferred_effects }`. Queuing them leaves host facts unchanged;
+queries, later immediate requests and captured choice availability still observe
+the current host assignment.
+
+For this bridge's host policy, handle `End`, enumerate its delivered list in order,
+and call `effects.apply_at(&session, position, &host_state)` for each occurrence.
+The method requires an ended session and borrows that position from Recite's
+retained queue. Its receipt preserves the original request and declared transition.
+Commit each returned state before the next position. If application fails, stop;
+prior host commits remain and no suffix is applied automatically. The adapter does
+not impose order, retry, or rollback on the host's loop.
+
+Repeated visits to one authored deferred statement can produce identical IDs and
+requests at different positions. Record progress using the host's transaction
+identity together with the queue position, rather than deduplicating by request ID.
+The retained queue is not consumed by application. Later asynchronous scheduling
+would need its own explicit consumer contract.

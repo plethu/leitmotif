@@ -265,3 +265,5 @@ fn mixed_deep_and_wide_compiled_guards_fail_explicitly_on_a_worker_stack() {
 }
 
 mod blocking_effects;
+
+mod deferred_effects;
