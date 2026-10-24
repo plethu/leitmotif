@@ -221,3 +221,62 @@ fn help_fits_eighty_columns_without_splitting_option_values() {
     assert!(help.contains("synthetic, composed"));
     assert!(help.contains("unreachable, alternative"));
 }
+
+#[test]
+fn sliced_local_measurements_use_explicit_projected_counts_and_dependency_ids() {
+    let report = measurement("3", &["--query", "local", "--analysis", "sliced"]).unwrap();
+    assert_eq!(report["analysis"], "sliced");
+    assert_eq!(report["conclusion"], "reached");
+    assert_eq!(report["witness_length"], 2);
+    assert_eq!(report["coverage"]["discovered_projections"], 3);
+    assert_eq!(report["coverage"]["evaluated_projections"], 3);
+    assert!(report["coverage"].get("discovered_states").is_none());
+    assert_eq!(
+        report["slice"]["retained_facts"],
+        serde_json::json!(["town.thread.0"])
+    );
+    assert_eq!(
+        report["slice"]["retained_transitions"]
+            .as_array()
+            .unwrap()
+            .len(),
+        3
+    );
+}
+
+#[test]
+fn composed_slice_retains_both_competing_endings_without_state_reduction() {
+    let report = measurement(
+        "2",
+        &[
+            "--fixture",
+            "composed",
+            "--query",
+            "goal",
+            "--analysis",
+            "sliced",
+        ],
+    )
+    .unwrap();
+    assert_eq!(report["coverage"]["discovered_projections"], 6);
+    assert_eq!(report["coverage"]["evaluated_projections"], 5);
+    assert_eq!(
+        report["slice"]["retained_facts"].as_array().unwrap().len(),
+        5
+    );
+    assert_eq!(
+        report["slice"]["retained_transitions"]
+            .as_array()
+            .unwrap()
+            .len(),
+        5
+    );
+    assert_eq!(report["witness_length"], 3);
+    let output = run(&["--fixture", "composed", "--query", "local"], 1).unwrap();
+    assert!(output.stdout.is_empty());
+    assert!(
+        String::from_utf8(output.stderr)
+            .unwrap()
+            .contains("only to the synthetic fixture")
+    );
+}

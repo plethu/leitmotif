@@ -170,6 +170,7 @@ pub(super) struct Town {
     pub(super) model: Model,
     pub(super) initial: State,
     pub(super) goal: Predicate,
+    pub(super) local: Predicate,
     pub(super) unreachable: Predicate,
 }
 
@@ -193,6 +194,11 @@ fn build<const SIZE: usize>(parameters: Parameters) -> Result<Town, Box<dyn Erro
     let permit = builder.fact::<Permit>()?;
     let closed = builder.fact::<ClosedEnding>()?;
     let threads = register_threads::<SIZE>(&mut builder, parameters.threads)?;
+    let local = threads
+        .first()
+        .ok_or("town requires a thread")?
+        .finished
+        .clone();
     let mut initial = vec![permit.set(true), closed.set(false)];
     let mut goal = Predicate::constant(true);
     for (index, thread) in threads.iter().enumerate() {
@@ -224,6 +230,7 @@ fn build<const SIZE: usize>(parameters: Parameters) -> Result<Town, Box<dyn Erro
         initial: model.state(initial)?,
         model,
         goal,
+        local,
         unreachable: closed.is(true),
     })
 }

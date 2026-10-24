@@ -70,7 +70,7 @@ def main() -> int:
         description=(
             "Measure synthetic towns in release mode; remaining arguments go to "
             "the town_scaling example (threads, local-domain, coupling, resource, "
-            "query, max-states, max-depth)."
+            "query, analysis, max-states, max-depth)."
         )
     )
     parser.add_argument("--repeat", type=positive_integer, default=3)

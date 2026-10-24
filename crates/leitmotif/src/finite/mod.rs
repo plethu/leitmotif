@@ -9,6 +9,8 @@ mod progression;
 mod reports;
 mod reproducibility;
 mod search;
+mod sliced_reports;
+mod slicing;
 mod value;
 
 pub use author::{Invariant, ModelBuilder, Premise, Transition};
@@ -23,4 +25,5 @@ pub use reports::{
     ReachabilityConclusion, ReachabilityReport, SearchCoverage, SearchLimits, Snapshot, Trace,
     TraceStep, TransitionInfo,
 };
+pub use sliced_reports::{ProjectedCoverage, SlicedReachabilityReport};
 pub use value::{Domain, Fact, FactKind, Value};

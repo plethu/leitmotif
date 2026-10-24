@@ -9,7 +9,7 @@ use std::{error::Error, fs, io, time::Instant};
 
 use clap::{Parser, ValueEnum};
 use leitmotif::{Model, Predicate, State};
-use leitmotif::{ReachabilityConclusion, SearchCoverage, SearchLimits};
+use leitmotif::{ProjectedCoverage, ReachabilityConclusion, SearchCoverage, SearchLimits};
 use scaling_town::{Parameters, Resource, Town};
 use serde::Serialize;
 
@@ -30,8 +30,16 @@ enum Fixture {
 #[serde(rename_all = "snake_case")]
 enum Query {
     Goal,
+    Local,
     Unreachable,
     Alternative,
+}
+
+#[derive(Clone, Copy, Debug, Serialize, ValueEnum)]
+#[serde(rename_all = "snake_case")]
+enum Analysis {
+    Exhaustive,
+    Sliced,
 }
 
 #[derive(Debug, Parser)]
@@ -56,9 +64,12 @@ struct Args {
     /// Whether threads compete for a single reusable permit.
     #[arg(long, value_enum)]
     resource: Option<ResourceArg>,
-    /// Synthetic goal: final phases. Composed goal/alternative: shelter/departure.
+    /// Goal: all final phases or shelter. Local: first thread. Alternative: ferry.
     #[arg(long, value_enum, default_value = "unreachable")]
     query: Query,
+    /// Enumerate full assignments or query-dependent projections.
+    #[arg(long, value_enum, default_value = "exhaustive")]
+    analysis: Analysis,
     #[arg(long, default_value_t = 100_000)]
     max_states: usize,
     #[arg(long, default_value_t = 128)]
@@ -96,6 +107,7 @@ impl Args {
                 let town = Town::new(parameters)?;
                 let target = match self.query {
                     Query::Goal => town.goal,
+                    Query::Local => town.local,
                     Query::Unreachable => town.unreachable,
                     Query::Alternative => {
                         return Err(
@@ -115,6 +127,9 @@ impl Args {
                 let town = composed_town::town()?;
                 let target = match self.query {
                     Query::Goal => town.sheltered,
+                    Query::Local => {
+                        return Err("local query applies only to the synthetic fixture".into());
+                    }
                     Query::Alternative => town.departed,
                     Query::Unreachable => town.unreachable,
                 };
@@ -137,13 +152,32 @@ struct MeasurementInput {
 }
 
 #[derive(Serialize)]
+#[serde(tag = "analysis", rename_all = "snake_case")]
+enum MeasurementSearch {
+    Exhaustive {
+        coverage: SearchCoverage,
+    },
+    Sliced {
+        coverage: ProjectedCoverage,
+        slice: Slice,
+    },
+}
+
+#[derive(Serialize)]
+struct Slice {
+    retained_facts: Vec<String>,
+    retained_transitions: Vec<String>,
+}
+
+#[derive(Serialize)]
 struct Measurement {
     fixture: Fixture,
     parameters: Option<Parameters>,
     authored_events: usize,
     authored_facts: usize,
     query: Query,
-    coverage: SearchCoverage,
+    #[serde(flatten)]
+    search: MeasurementSearch,
     conclusion: &'static str,
     witness_length: Option<usize>,
     analysis_seconds: f64,
@@ -172,16 +206,40 @@ pub fn run() -> Result<(), Box<dyn Error>> {
     let args = Args::parse();
     let input = args.build_input()?;
     let start = Instant::now();
-    let report = input.model.reachability(
-        &input.initial,
-        &input.target,
-        SearchLimits {
-            max_states: args.max_states,
-            max_depth: args.max_depth,
-        },
-    )?;
+    let limits = SearchLimits {
+        max_states: args.max_states,
+        max_depth: args.max_depth,
+    };
+    let (conclusion, search) = match args.analysis {
+        Analysis::Exhaustive => {
+            let report = input
+                .model
+                .reachability(&input.initial, &input.target, limits)?;
+            (
+                report.conclusion,
+                MeasurementSearch::Exhaustive {
+                    coverage: report.coverage,
+                },
+            )
+        }
+        Analysis::Sliced => {
+            let report = input
+                .model
+                .sliced_reachability(&input.initial, &input.target, limits)?;
+            (
+                report.conclusion,
+                MeasurementSearch::Sliced {
+                    coverage: report.coverage,
+                    slice: Slice {
+                        retained_facts: report.retained_facts,
+                        retained_transitions: report.retained_transitions,
+                    },
+                },
+            )
+        }
+    };
     let analysis_seconds = start.elapsed().as_secs_f64();
-    let (conclusion, witness_length) = match &report.conclusion {
+    let (conclusion, witness_length) = match &conclusion {
         ReachabilityConclusion::Reached { witness } => ("reached", Some(witness.steps.len())),
         ReachabilityConclusion::Unreachable => ("unreachable", None),
         ReachabilityConclusion::Inconclusive => ("inconclusive", None),
@@ -192,7 +250,7 @@ pub fn run() -> Result<(), Box<dyn Error>> {
         authored_facts: input.model.facts().len(),
         parameters: input.parameters,
         query: args.query,
-        coverage: report.coverage,
+        search,
         conclusion,
         witness_length,
         analysis_seconds,

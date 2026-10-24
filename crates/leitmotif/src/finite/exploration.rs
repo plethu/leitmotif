@@ -2,6 +2,7 @@ use std::collections::{BTreeMap, VecDeque};
 
 use super::{
     Error, ErrorKind, Model, SearchCoverage, SearchLimits, Source, State, Trace, TraceStep, Value,
+    slicing::Dependencies,
 };
 
 struct Node {
@@ -15,11 +16,29 @@ pub(super) struct Exploration {
     visited: BTreeMap<Vec<Value>, usize>,
     pending: VecDeque<usize>,
     coverage: SearchCoverage,
+    dependencies: Option<Dependencies>,
 }
 
 impl Exploration {
     pub(super) fn new(initial: &State, limits: SearchLimits) -> Self {
+        Self::with_dependencies(initial, limits, None)
+    }
+
+    pub(super) fn sliced(
+        initial: &State,
+        limits: SearchLimits,
+        dependencies: Dependencies,
+    ) -> Self {
+        Self::with_dependencies(initial, limits, Some(dependencies))
+    }
+
+    fn with_dependencies(
+        initial: &State,
+        limits: SearchLimits,
+        dependencies: Option<Dependencies>,
+    ) -> Self {
         let mut search = Self {
+            dependencies,
             nodes: BTreeMap::new(),
             visited: BTreeMap::new(),
             pending: VecDeque::new(),
@@ -42,11 +61,24 @@ impl Exploration {
                     parent: None,
                 },
             );
-            search.visited.insert(initial.values.clone(), 0);
+            search.visited.insert(search.key(&initial.values), 0);
             search.pending.push_back(0);
             search.coverage.discovered_states = 1;
         }
         search
+    }
+
+    fn key(&self, values: &[Value]) -> Vec<Value> {
+        values
+            .iter()
+            .enumerate()
+            .filter(|(index, _)| {
+                self.dependencies
+                    .as_ref()
+                    .is_none_or(|dependencies| dependencies.facts.contains(index))
+            })
+            .map(|(_, value)| value.clone())
+            .collect()
     }
 
     pub(super) fn values(&self, id: usize) -> Result<&[Value], Error> {
@@ -90,10 +122,18 @@ impl Exploration {
     ) -> Result<(), Error> {
         let depth = self.node(id)?.depth;
         for (transition_index, transition) in model.transitions.iter().enumerate() {
+            if self
+                .dependencies
+                .as_ref()
+                .is_some_and(|dependencies| !dependencies.transitions.contains(&transition_index))
+            {
+                continue;
+            }
             let Some(values) = transition.apply(&self.node(id)?.values)? else {
                 continue;
             };
-            if let Some(successor) = self.visited.get(&values) {
+            let key = self.key(&values);
+            if let Some(successor) = self.visited.get(&key) {
                 edge(*successor)?;
                 continue;
             }
@@ -107,7 +147,7 @@ impl Exploration {
             }
             let successor_id = self.nodes.len();
             let successor_depth = increment(depth)?;
-            self.visited.insert(values.clone(), successor_id);
+            self.visited.insert(key, successor_id);
             self.nodes.insert(
                 successor_id,
                 Node {

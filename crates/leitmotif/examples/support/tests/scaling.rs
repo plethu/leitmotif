@@ -193,3 +193,78 @@ fn fixed_independent_workload_exhausts_within_its_measured_state_budget() {
     assert!(!report.coverage.state_limit_hit);
     assert!(!report.coverage.depth_limit_hit);
 }
+
+#[test]
+fn measured_local_query_keeps_three_projections_and_replays_full_snapshots() {
+    // Measured before setting this budget: full BFS admits 28 states/evaluates 8;
+    // the local dependency projection admits and evaluates 3 assignments.
+    let town = Town::new(Parameters::new(6, 3, 0, Resource::Unlimited).unwrap()).unwrap();
+    let full = town
+        .model
+        .reachability(&town.initial, &town.local, LIMITS)
+        .unwrap();
+    assert_eq!(full.coverage.discovered_states, 28);
+    assert_eq!(full.coverage.evaluated_states, 8);
+    let sliced = town
+        .model
+        .sliced_reachability(
+            &town.initial,
+            &town.local,
+            SearchLimits {
+                max_states: 3,
+                max_depth: 2,
+            },
+        )
+        .unwrap();
+    assert_eq!(sliced.retained_facts, ["town.thread.0"]);
+    assert_eq!(sliced.retained_transitions.len(), 3);
+    assert_eq!(sliced.coverage.discovered_projections, 3);
+    assert_eq!(sliced.coverage.evaluated_projections, 3);
+    assert!(!sliced.coverage.state_limit_hit);
+    assert!(!sliced.coverage.depth_limit_hit);
+    let ReachabilityConclusion::Reached { witness } = sliced.conclusion else {
+        panic!("local ending is reachable")
+    };
+    assert_eq!(witness.steps.len(), 2);
+    let mut state = town.initial.clone();
+    assert_eq!(town.model.snapshot(&state).unwrap(), witness.initial);
+    for step in witness.steps {
+        state = town
+            .model
+            .apply(&state, &step.transition.id)
+            .unwrap()
+            .unwrap();
+        assert_eq!(town.model.snapshot(&state).unwrap(), step.state);
+    }
+    assert!(town.model.evaluate(&state, &town.local).unwrap());
+}
+
+#[test]
+fn ring_coupling_and_permits_close_over_all_thread_transitions() {
+    for (coupling, resource, facts, admitted) in [
+        (1, Resource::Unlimited, 6, 28),
+        (0, Resource::SinglePermit, 7, 13),
+    ] {
+        let town = Town::new(Parameters::new(6, 3, coupling, resource).unwrap()).unwrap();
+        let full = town
+            .model
+            .reachability(&town.initial, &town.local, LIMITS)
+            .unwrap();
+        let sliced = town
+            .model
+            .sliced_reachability(&town.initial, &town.local, LIMITS)
+            .unwrap();
+        assert_eq!(sliced.retained_facts.len(), facts);
+        assert_eq!(sliced.retained_transitions.len(), 18);
+        assert_eq!(sliced.coverage.discovered_projections, admitted);
+        assert_eq!(
+            sliced.coverage.discovered_projections,
+            full.coverage.discovered_states
+        );
+        assert_eq!(
+            sliced.coverage.evaluated_projections,
+            full.coverage.evaluated_states
+        );
+        assert_eq!(sliced.conclusion, full.conclusion);
+    }
+}

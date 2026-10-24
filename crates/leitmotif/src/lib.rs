@@ -40,6 +40,7 @@ pub use finite::{
     HypothesisReport, Invariant, InvariantConclusion, InvariantReport, Model, ModelBuilder,
     NamedPredicate, PermittedEnding, Predicate, PredicateDescription, PredicateExpression,
     PredicateKind, Premise, ProgressionConclusion, ProgressionQuery, ProgressionReport,
-    ReachabilityConclusion, ReachabilityReport, SearchCoverage, SearchLimits, Snapshot, Source,
-    State, Trace, TraceStep, Transition, TransitionInfo, Value,
+    ProjectedCoverage, ReachabilityConclusion, ReachabilityReport, SearchCoverage, SearchLimits,
+    SlicedReachabilityReport, Snapshot, Source, State, Trace, TraceStep, Transition,
+    TransitionInfo, Value,
 };
