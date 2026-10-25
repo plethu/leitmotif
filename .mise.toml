@@ -1,7 +1,10 @@
 [tools]
 dotnet = "10.0.203"
 "dotnet:coverlet.console" = "10.1.0"
-"dotnet:csharpier" = "1.3.0"
+# Serialize .NET first-use initialization shared by the NuGet tool installers.
+"dotnet:csharpier" = { version = "1.3.0", depends = [
+  "dotnet:coverlet.console",
+] }
 "github:godotengine/godot" = { version = "4.6.3-stable", asset_pattern = "Godot_v4.6.3-stable_mono_linux_x86_64.zip", rename_exe = "godot-dotnet", checksum = "sha512:962c4f5fd3a704de36c9dedcb2f5f6c973065ac8ed8fd6e12c7ebf7e48c3852d774bcef2ccf76b50b206c0c564ceea54315e2943e76e397529923e7de680508e" }
 rust = [
   { version = "1.97.1", components = "rustfmt,clippy" },

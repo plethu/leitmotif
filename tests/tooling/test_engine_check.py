@@ -144,6 +144,14 @@ class EngineCheckTests(unittest.TestCase):
         self.assertEqual(sdk["version"], mise["tools"]["dotnet"])
         self.assertEqual(sdk["rollForward"], "disable")
 
+    def test_dotnet_tool_installs_serialize_first_use(self):
+        mise = tomllib.loads((engine_check.ROOT / ".mise.toml").read_text())
+        tools = mise["tools"]
+        self.assertEqual(
+            tools["dotnet:csharpier"]["depends"], ["dotnet:coverlet.console"]
+        )
+        self.assertNotIn("jobs", mise["settings"])
+
     def test_native_leaf_preserves_workspace_lints_except_scoped_unsafe_entry(self):
         root = tomllib.loads((engine_check.ROOT / "Cargo.toml").read_text())
         native = tomllib.loads(
