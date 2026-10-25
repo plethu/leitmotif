@@ -14,6 +14,12 @@ fn headless_executable_reports_audited_outcomes_and_the_deliberate_fault() {
     assert!(stdout.contains("storm_passed: Unreachable"));
     assert!(stdout.contains("bounded shelter: Inconclusive"));
     assert!(stdout.contains("deliberate missing oil effect detected: keeper.light_beacon"));
-    assert!(stdout.contains("verified prefix 1, accepted actions 2"));
+    assert!(
+        stdout.contains("\n  harbour.oil_available: expected Bool(false), actual Bool(true)\n")
+    );
+    assert!(stdout.contains("\n  source: "));
+    assert!(stdout.contains("\n  expected snapshot:\n"));
+    assert!(stdout.contains("\n  actual snapshot:\n"));
+    assert!(stdout.contains("\n  execution: verified prefix 1, accepted actions 2"));
     assert!(output.stderr.is_empty());
 }

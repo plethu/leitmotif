@@ -287,3 +287,35 @@ fn a_known_but_disabled_witness_action_fails_before_effects() {
     ));
     assert_eq!(host.state().unwrap(), &Harbour::initial());
 }
+
+#[test]
+fn divergence_display_identifies_missing_and_unexpected_facts_and_retains_evidence() {
+    let town = composed_town::town().unwrap();
+    let report = town
+        .model
+        .reachability(&town.initial, &town.sheltered, LIMITS)
+        .unwrap();
+    let mut host = Host::new(Harbour::initial(), Lighting::PreserveOil);
+    let Err(Error::Divergence(mut difference)) = verification::replay(&town, &report, &mut host)
+    else {
+        panic!("expected divergence")
+    };
+    difference.actual.values.remove("keeper.beacon_lit");
+    difference
+        .actual
+        .values
+        .insert("unexpected.fact".into(), leitmotif::Value::Bool(true));
+    let display = difference.to_string();
+    assert!(display.starts_with(
+        "keeper.light_beacon\n  harbour.oil_available: expected Bool(false), actual Bool(true)\n"
+    ));
+    assert!(display.contains("keeper.beacon_lit: expected Bool(true), actual <missing>"));
+    assert!(display.contains("unexpected.fact: expected <missing>, actual Bool(true)"));
+    assert!(display.contains("\n  source: "));
+    assert!(display.contains("composed_town/keeper.rs"));
+    assert!(display.contains("\n  enabled: expected true, accepted true\n"));
+    assert!(display.contains("\n  expected snapshot:\n"));
+    assert!(display.contains("\n  actual snapshot:\n"));
+    assert!(display.contains("    ferryman.ready: Bool(false)\n"));
+    assert!(display.ends_with("execution: verified prefix 1, accepted actions 2"));
+}

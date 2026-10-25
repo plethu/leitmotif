@@ -10,6 +10,7 @@ mod tests;
 mod verification;
 
 use leitmotif::{Snapshot, Source};
+use std::collections::BTreeSet;
 use std::error::Error as StdError;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use thiserror::Error;
@@ -55,17 +56,42 @@ pub fn run() -> Result<(), Box<dyn StdError>> {
 
 impl Display for Difference {
     fn fmt(&self, f: &mut Formatter<'_>) -> FmtResult {
+        writeln!(f, "{}", self.action)?;
+        let keys: BTreeSet<_> = self
+            .expected
+            .values
+            .keys()
+            .chain(self.actual.values.keys())
+            .collect();
+        for key in keys {
+            let expected = self.expected.values.get(key);
+            let actual = self.actual.values.get(key);
+            if expected != actual {
+                let expected = expected.map_or_else(|| "<missing>".into(), |v| format!("{v:?}"));
+                let actual = actual.map_or_else(|| "<missing>".into(), |v| format!("{v:?}"));
+                writeln!(f, "  {key}: expected {expected}, actual {actual}")?;
+            }
+        }
+        writeln!(
+            f,
+            "  source: {}:{}:{}",
+            self.source.file, self.source.line, self.source.column
+        )?;
+        writeln!(
+            f,
+            "  enabled: expected {}, accepted {}",
+            self.expected_enabled, self.accepted
+        )?;
+        for (label, snapshot) in [("expected", &self.expected), ("actual", &self.actual)] {
+            writeln!(f, "  {label} snapshot:")?;
+            for (key, value) in &snapshot.values {
+                writeln!(f, "    {key}: {value:?}")?;
+            }
+        }
         write!(
             f,
-            "{} ({:?}): enabled expected {}, accepted {}; snapshot expected {:?}, actual {:?}; verified prefix {}, accepted actions {}",
-            self.action,
-            self.source,
-            self.expected_enabled,
-            self.accepted,
-            self.expected,
-            self.actual,
-            self.verified_prefix,
-            self.accepted_actions
+            "  execution: verified prefix {}, accepted actions {}",
+            self.verified_prefix, self.accepted_actions
         )
     }
 }
