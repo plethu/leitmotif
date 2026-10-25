@@ -75,7 +75,7 @@ jobs:
           install_args:
             rust just python dotnet dotnet:coverlet.console dotnet:csharpier
             github:godotengine/godot cargo:cargo-nextest cargo:cargo-deny
-            cargo:cargo-machete cargo:cargo-llvm-cov
+            cargo:cargo-machete cargo:cargo-llvm-cov cargo:cargo-about
       - run: just engine check
       - run: just native check
 

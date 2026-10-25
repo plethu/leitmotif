@@ -19,11 +19,15 @@ supply-chain:
     cargo machete examples/godot-native
 
 host-check:
-    cargo build --manifest-path examples/godot-native/Cargo.toml --locked
+    cargo build --manifest-path examples/godot-native/Cargo.toml --locked --release
     mkdir -p "${CARGO_TARGET_DIR:-target}/native-host"
     cargo run --locked -p leitmotif-recite --example harbour-dialogue -- --compiled-asset "${CARGO_TARGET_DIR:-target}/native-host/harbour.recitec"
     cargo run --locked -p leitmotif-recite --example harbour-native-cases -- "${CARGO_TARGET_DIR:-target}/native-host/cases"
-    python -m scripts.native_check --library "${CARGO_TARGET_DIR:-examples/godot-native/target}/debug/libleitmotif_godot_native.so" --asset "${CARGO_TARGET_DIR:-target}/native-host/harbour.recitec" --output "${CARGO_TARGET_DIR:-target}/native-host"
+    python -m scripts.native_check --library "${CARGO_TARGET_DIR:-examples/godot-native/target}/release/libleitmotif_godot_native.so" --profile release --asset "${CARGO_TARGET_DIR:-target}/native-host/harbour.recitec" --output "${CARGO_TARGET_DIR:-target}/native-host"
+
+# Ship only the verified Linux release package; compilation remains locked.
+package: supply-chain host-check
+    python -m scripts.native_package build --profile release --library "${CARGO_TARGET_DIR:-examples/godot-native/target}/release/libleitmotif_godot_native.so" --asset "${CARGO_TARGET_DIR:-target}/native-host/harbour.recitec" --archive "${CARGO_TARGET_DIR:-target}/leitmotif-godot-linux-x86_64.zip"
 
 coverage: host-check
     #!/usr/bin/env bash
