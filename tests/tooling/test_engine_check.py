@@ -62,9 +62,11 @@ class EngineCheckTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory)
             commands = []
+            options = []
 
             def tool(command, expected=0, *, output=None, **kwargs):
                 commands.append((command, expected))
+                options.append(kwargs)
                 if output is not None:
                     output.write_text(json.dumps({"conformance": {"cases": [{}] * 30}}))
 
@@ -97,6 +99,20 @@ class EngineCheckTests(unittest.TestCase):
             self.assertTrue(
                 all("--include-test-assembly" in command for command in instrumented)
             )
+
+            godot_coverage = instrumented[-1]
+            self.assertEqual(
+                godot_coverage[godot_coverage.index("--target") + 1], "env"
+            )
+            target_args = godot_coverage[godot_coverage.index("--targetargs") + 1]
+            self.assertIn("HARBOUR_COVERAGE=1", target_args)
+            self.assertTrue(options[-1]["normal_godot"])
+            negative = [
+                (command, status)
+                for command, status in commands
+                if any(str(part).startswith("HARBOUR_TEST_MODE=") for part in command)
+            ]
+            self.assertEqual([status for _, status in negative], [3, 3])
 
     def test_fixed_cost_regression_rejects_incomplete_fixture(self):
         with tempfile.TemporaryDirectory() as directory:

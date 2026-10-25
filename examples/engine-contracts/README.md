@@ -39,13 +39,13 @@ or inconclusive. Host actions accepted before a divergence are not rolled back. 
 audit resets from its own captured initial state for each prefix and never hydrates a
 model successor into live state.
 
-Godot coverage uses a test-only scene after ordinary Node completion. Its managed exit
-flushes Coverlet but emits native cleanup warnings, which the gate preserves. Separate
-normal-exit checks must pass. Coverage includes every authored production C# file,
-including the console entrypoint and Godot Node. Only identified generated build output
-and test drivers are omitted. The empty compiler marker is checked against its exact
-declaration before classifying executable sources; added behavior fails. Missing
-instrumentation and unknown sources fail.
+Godot coverage uses a test-only scene after ordinary Node completion. It flushes the
+pinned Coverlet trackers before requesting normal Godot shutdown. Separate normal-exit
+checks must pass. Coverage includes every authored production C# file, including the
+console entrypoint and Godot Node. Only identified generated build output and test
+drivers are omitted. The empty compiler marker is checked against its exact declaration
+before classifying executable sources; added behavior fails. Missing instrumentation and
+unknown sources fail.
 
 These checks currently cover Linux x86_64, Godot .NET 4.6.3, and SDK 10.0.203. The .NET
 console is not a Unity Editor, Mono, or IL2CPP integration. No GDExtension or Bevy

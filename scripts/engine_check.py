@@ -172,13 +172,15 @@ def execute(binary, output):
             "coverlet",
             godot_dll,
             "--target",
-            godot,
+            "env",
             "--targetargs",
             subprocess.list2cmdline(
                 list(
                     map(
                         str,
                         [
+                            "HARBOUR_COVERAGE=1",
+                            godot,
                             "--headless",
                             "--path",
                             godot_root,
@@ -194,6 +196,7 @@ def execute(binary, output):
             output / "godot-coverage.json",
         ],
         completion="Coverage harness complete",
+        normal_godot=True,
     )
     print(
         check(

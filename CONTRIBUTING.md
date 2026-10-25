@@ -53,7 +53,7 @@ SDK analyzer build, native Godot resource formatting, console checks, normal God
 exits, and authored C# coverage are required together. CSharpier formats C# and project
 XML; `just engine fmt` applies formatting. Godot resources are round-tripped with the
 pinned engine's own serializers. Coverage uses a separate test scene that waits for the
-actual production Node to complete its normal quit request, then exits through .NET to
-flush Coverlet. Native cleanup warnings from that coverage-only exit remain visible.
+actual production Node to complete its normal quit request, then flushes the pinned
+Coverlet trackers before Godot completes its ordinary shutdown.
 Ordinary shutdown is checked separately; the production Node never force-exits. This
 establishes neither Unity Editor/player support nor Bevy integration.
