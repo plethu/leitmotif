@@ -102,7 +102,7 @@ public partial class NativeDriver : Node
             );
             var config = new ConfigFile();
             Require(
-                config.Load("res://native/harbour.gdextension") == Error.Ok,
+                config.Load("res://native/extension/harbour.gdextension") == Error.Ok,
                 "cannot load extension configuration"
             );
             Require(
@@ -110,7 +110,9 @@ public partial class NativeDriver : Node
                 "cannot serialize extension configuration"
             );
             Require(
-                File.ReadAllText(ProjectSettings.GlobalizePath("res://native/harbour.gdextension"))
+                File.ReadAllText(
+                    ProjectSettings.GlobalizePath("res://native/extension/harbour.gdextension")
+                )
                     == File.ReadAllText(
                         ProjectSettings.GlobalizePath("user://native.canonical.gdextension")
                     ),

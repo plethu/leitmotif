@@ -11,6 +11,11 @@ from scripts import native_check
 
 
 class NativeCheckTests(unittest.TestCase):
+    def setUp(self):
+        notices = patch("scripts.native_notices.generate", return_value=b"notices")
+        notices.start()
+        self.addCleanup(notices.stop)
+
     def test_missing_library_is_rejected_before_copy_or_engine_run(self):
         with tempfile.TemporaryDirectory() as directory:
             with self.assertRaisesRegex(ValueError, "native library does not exist"):
@@ -54,22 +59,24 @@ class NativeCheckTests(unittest.TestCase):
                     return
                 project = command[3]
                 self.assertEqual(
-                    (project / "native/libleitmotif_godot_native.so").read_bytes(),
+                    (
+                        project / "native/extension/libleitmotif_godot_native.so"
+                    ).read_bytes(),
                     b"native fixture",
                 )
                 self.assertEqual(
-                    (project / "native/harbour.gdextension").read_bytes(),
+                    (project / "native/extension/harbour.gdextension").read_bytes(),
                     (native_check.NATIVE / "harbour.gdextension").read_bytes(),
                 )
                 self.assertTrue(options["normal_godot"])
                 commands.append((command, options))
 
             with (
-                patch.object(native_check, "CONSUMERS", consumers),
+                patch.object(native_check.native_package, "CONSUMERS", consumers),
                 patch.object(native_check, "run", side_effect=run),
             ):
                 native_check.execute(library, asset, root / "out")
-            self.assertEqual(len(commands), 2)
+            self.assertEqual(len(commands), 4)
             self.assertIn("--editor", commands[0][0])
             self.assertEqual(commands[1][1]["completion"], native_check.COMPLETION)
             self.assertFalse(commands[0][0][3].exists())
@@ -85,7 +92,7 @@ class NativeCheckTests(unittest.TestCase):
             consumers = root / "consumers"
             (consumers / "Godot").mkdir(parents=True)
             with (
-                patch.object(native_check, "CONSUMERS", consumers),
+                patch.object(native_check.native_package, "CONSUMERS", consumers),
                 patch.object(
                     native_check, "run", side_effect=ValueError("engine failed")
                 ),
@@ -111,7 +118,7 @@ class NativeCheckTests(unittest.TestCase):
             patch.object(native_check, "execute") as execute,
         ):
             native_check.main()
-        self.assertTrue(all(path.is_absolute() for path in execute.call_args.args))
+        self.assertTrue(all(path.is_absolute() for path in execute.call_args.args[:3]))
         result = subprocess.run(
             [sys.executable, "-m", "scripts.native_check", "--help"],
             cwd=native_check.ROOT,
