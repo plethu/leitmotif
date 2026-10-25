@@ -56,6 +56,7 @@ jobs:
             cargo:cargo-llvm-cov github:Z3Prover/z3
       - run: just core-check
       - run: just supply-chain
+      - run: just symbolic check
       - run: just coverage
       - name: Consume the archive runtime report
         run: just report-check

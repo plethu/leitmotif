@@ -11,6 +11,7 @@ fmt:
     just --justfile .config/just/quality.just --unstable --fmt
     just --justfile .config/just/engine.just --unstable --fmt
     just --justfile .config/just/native.just --unstable --fmt
+    just --justfile .config/just/symbolic.just --unstable --fmt
 
 fmt-check:
     taplo fmt --check
@@ -22,6 +23,7 @@ fmt-check:
     just --justfile .config/just/quality.just --unstable --fmt --check
     just --justfile .config/just/engine.just --unstable --fmt --check
     just --justfile .config/just/native.just --unstable --fmt --check
+    just --justfile .config/just/symbolic.just --unstable --fmt --check
 
 lint:
     ruff check scripts tests

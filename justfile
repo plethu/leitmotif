@@ -5,6 +5,7 @@ set positional-arguments
 mod quality '.config/just/quality.just'
 mod engine '.config/just/engine.just'
 mod native '.config/just/native.just'
+mod symbolic '.config/just/symbolic.just'
 
 default:
     @just --list
@@ -13,12 +14,14 @@ default:
 fmt:
     cargo fmt --all
     just native fmt
+    just symbolic fmt
     just quality fmt
     just engine fmt
 
 fmt-check:
     cargo fmt --all -- --check
     just native fmt-check
+    just symbolic fmt-check
     just quality fmt-check
     just engine fmt-check
 
@@ -59,6 +62,7 @@ check:
     just report-check
     just engine check
     just native check
+    just symbolic check
 
 verify: check
 

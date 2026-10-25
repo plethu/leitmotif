@@ -9,8 +9,11 @@ Use the pinned tools with `mise install` and run `mise exec -- just check`.
 `mise run verify` runs the same aggregate gate. `mise exec -- just fmt` applies
 formatting. With mise activated, the focused groups are `just quality check`,
 `just core-check`, `just supply-chain`, and `just coverage`; run `just` or
-`just quality` to list commands. `just core-check` needs no game engine. The complete
-gate also runs the optional-tool engine conformance lane; install its exact tools with
+`just quality` to list commands. `just core-check` needs no game engine. The private
+symbolic-town experiment has a separate locked workspace; `just symbolic check` applies
+its format, strict Clippy, test, dependency, and production coverage gates. The
+aggregate check and selected Rust CI lane include it. The complete gate also runs the
+optional-tool engine conformance lane; install its exact tools with
 `mise exec -- just engine setup`. Contributions are under MIT OR Apache-2.0.
 
 Coverage uses the separately pinned nightly compiler to measure branches. The gate

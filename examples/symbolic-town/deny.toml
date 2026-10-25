@@ -1,0 +1,25 @@
+[graph]
+all-features = true
+
+[advisories]
+version = 2
+
+[bans]
+multiple-versions = "deny"
+wildcards = "deny"
+
+[licenses]
+version = 2
+confidence-threshold = 0.95
+allow = ["MIT", "Apache-2.0", "Unicode-3.0"]
+
+[[licenses.exceptions]]
+name = "nanorand"
+version = "=0.8.0"
+allow = ["Zlib"]
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = ["https://github.com/plethu/oxidd"]
