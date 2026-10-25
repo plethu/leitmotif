@@ -1,6 +1,8 @@
 """The shipped archive is deterministic, bounded, verifiable and replaceable."""
 
 import json
+import subprocess
+import sys
 import tempfile
 import unittest
 import zipfile
@@ -261,6 +263,64 @@ class PackageTests(unittest.TestCase):
             )
         self.assertEqual(len(reads), len(set(reads)))
 
+    def test_actual_help_explains_input_and_ownership_contracts(self):
+        for module, command, expected in [
+            (
+                "scripts.native_package",
+                [],
+                ["build", "Verify a package ZIP", "native/extension"],
+            ),
+            (
+                "scripts.native_package",
+                ["build"],
+                [
+                    "without compiling",
+                    "Linux x86_64",
+                    "adjacent cases/",
+                    "Output package ZIP",
+                    "default: release",
+                    "does not compile",
+                ],
+            ),
+            (
+                "scripts.native_package",
+                ["install"],
+                [
+                    "Extracted package directory",
+                    "Existing Godot project",
+                    "native/extension",
+                    "Refuse unmarked collisions",
+                ],
+            ),
+            (
+                "scripts.native_install",
+                [],
+                ["Verify a package ZIP", "native/extension"],
+            ),
+            (
+                "scripts.native_install",
+                ["install"],
+                [
+                    "Extracted package directory",
+                    "Existing Godot project",
+                    "native/extension",
+                    "Refuse unmarked collisions",
+                ],
+            ),
+        ]:
+            with self.subTest(module=module, command=command):
+                result = subprocess.run(
+                    [sys.executable, "-m", module, *command, "--help"],
+                    cwd=package.ROOT,
+                    check=True,
+                    text=True,
+                    capture_output=True,
+                    timeout=10,
+                )
+                text = " ".join(result.stdout.split())
+                for phrase in expected:
+                    self.assertIn(phrase, text)
+
     def test_cli_routes_build_extract_and_install(self):
         for command, args, target in [
             (
@@ -284,6 +344,8 @@ class PackageTests(unittest.TestCase):
             ):
                 package.main()
                 called.assert_called_once()
+                if command == "build":
+                    self.assertEqual(called.call_args.args[-1], "release")
             if command != "build":
                 with (
                     patch("sys.argv", ["native_install", command, *args]),

@@ -156,15 +156,41 @@ def install(bundle, project):
             shutil.rmtree(temporary)
 
 
+def add_install_commands(commands):
+    """Share the archive install contract between repository and shipped CLIs."""
+    unpack = commands.add_parser(
+        "extract",
+        help="Verify a package ZIP into a new directory.",
+        description="Verify the manifest and artifact hashes before extracting a package ZIP.",
+    )
+    unpack.add_argument("archive", type=Path, help="Package ZIP to verify and extract.")
+    unpack.add_argument(
+        "destination", type=Path, help="New directory for the verified package files."
+    )
+    deploy = commands.add_parser(
+        "install",
+        help="Install or replace the package-owned native/extension directory.",
+        description=(
+            "Replace only the package-owned native/extension directory in a Godot "
+            "project. Refuse unmarked collisions; keep authored content outside it."
+        ),
+    )
+    deploy.add_argument(
+        "bundle",
+        type=Path,
+        help="Extracted package directory containing manifest.json and extension/.",
+    )
+    deploy.add_argument(
+        "project",
+        type=Path,
+        help="Existing Godot project directory containing project.godot.",
+    )
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
-    unpack = commands.add_parser("extract")
-    unpack.add_argument("archive", type=Path)
-    unpack.add_argument("destination", type=Path)
-    deploy = commands.add_parser("install")
-    deploy.add_argument("bundle", type=Path)
-    deploy.add_argument("project", type=Path)
+    add_install_commands(commands)
     args = parser.parse_args()
     if args.command == "extract":
         extract(args.archive, args.destination)

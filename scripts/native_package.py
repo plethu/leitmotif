@@ -7,7 +7,14 @@ from pathlib import Path
 
 from scripts import native_notices
 from scripts.engine_check import CONSUMERS, ROOT
-from scripts.native_install import MANIFEST, Manifest, digest, extract, install
+from scripts.native_install import (
+    MANIFEST,
+    Manifest,
+    add_install_commands,
+    digest,
+    extract,
+    install,
+)
 
 
 def source_files(root):
@@ -63,17 +70,30 @@ def build(library, asset, archive, revision, profile="dev", notices=None):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
-    package = commands.add_parser("build")
-    package.add_argument("--library", type=Path, required=True)
-    package.add_argument("--asset", type=Path, required=True)
-    package.add_argument("--archive", type=Path, required=True)
-    package.add_argument("--profile", choices=("dev", "release"), default="release")
-    unpack = commands.add_parser("extract")
-    unpack.add_argument("archive", type=Path)
-    unpack.add_argument("destination", type=Path)
-    deploy = commands.add_parser("install")
-    deploy.add_argument("bundle", type=Path)
-    deploy.add_argument("project", type=Path)
+    description = "Package already-built Linux harbour artifacts without compiling."
+    package = commands.add_parser("build", help=description, description=description)
+    package.add_argument(
+        "--library",
+        type=Path,
+        required=True,
+        help="Built Linux x86_64 GDExtension .so file.",
+    )
+    package.add_argument(
+        "--asset",
+        type=Path,
+        required=True,
+        help="Compiled harbour .recitec asset; requires an adjacent cases/ directory.",
+    )
+    package.add_argument(
+        "--archive", type=Path, required=True, help="Output package ZIP path."
+    )
+    package.add_argument(
+        "--profile",
+        choices=("dev", "release"),
+        default="release",
+        help="Recorded profile of the supplied library (default: %(default)s); does not compile.",
+    )
+    add_install_commands(commands)
     args = parser.parse_args()
     if args.command == "build":
         revision = subprocess.check_output(
