@@ -62,4 +62,18 @@ allow = ["MPL-2.0"]
 unknown-registry = "deny"
 unknown-git = "deny"
 allow-registry = ["https://github.com/rust-lang/crates.io-index"]
-allow-git = ["https://github.com/plethu/recite"]
+allow-git = [
+  "https://github.com/plethu/recite",
+  "https://github.com/bevyengine/bevy",
+  "https://github.com/JelteF/derive_more",
+]
+
+[[licenses.exceptions]]
+name = "foldhash"
+version = "=0.2.0"
+allow = ["Zlib"]
+
+[[licenses.exceptions]]
+name = "slotmap"
+version = "=1.1.1"
+allow = ["Zlib"]
