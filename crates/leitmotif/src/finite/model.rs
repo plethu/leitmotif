@@ -1,4 +1,5 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeMap;
+use std::path::PathBuf;
 
 use serde::Serialize;
 
@@ -34,6 +35,8 @@ pub struct State {
 #[derive(Debug)]
 pub struct Model {
     pub(super) context: String,
+    pub(super) source_root: Option<PathBuf>,
+    pub(super) fingerprint: String,
     pub(super) owner: Identity,
     pub(super) facts: Vec<FactInfo>,
     pub(super) transitions: Vec<CompiledTransition>,
@@ -44,12 +47,14 @@ impl Model {
     pub(super) fn compile(builder: ModelBuilder) -> Result<Self, Error> {
         let mut model = Self {
             context: builder.context,
+            source_root: builder.source_root,
+            fingerprint: String::new(),
             owner: builder.owner,
             facts: builder.facts,
             transitions: Vec::new(),
             invariants: Vec::new(),
         };
-        let mut seen = BTreeSet::new();
+        let mut seen = BTreeMap::new();
         for transition in builder.transitions {
             let compiled = model.compile_transition(transition, &mut seen)?;
             model.transitions.push(compiled);
@@ -67,6 +72,8 @@ impl Model {
                 predicate,
             });
         }
+        model.fingerprint = model.semantic_id()?;
+        model.portable_sources();
         Ok(model)
     }
 
@@ -74,6 +81,14 @@ impl Model {
     #[must_use]
     pub fn context(&self) -> &str {
         &self.context
+    }
+
+    /// SHA-256 identity of this model's ordered semantic declarations.
+    /// Excludes source locations, runtime handle ownership and analysis inputs.
+    /// Retain the model source, lockfile and toolchain to reproduce a check.
+    #[must_use]
+    pub fn fingerprint(&self) -> &str {
+        &self.fingerprint
     }
 
     /// Finite fact declarations in registration order.

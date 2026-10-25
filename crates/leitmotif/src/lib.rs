@@ -34,11 +34,16 @@
 
 mod finite;
 
+#[cfg(feature = "smt")]
+pub use finite::smt;
+
 pub use finite::{
     Assignment, ClassificationCoverage, ClassificationLimits, Domain, EXPERIMENTAL_SCHEMA_VERSION,
     Error, ErrorKind, Fact, FactHandle, FactInfo, FactKind, FactValue, HypothesisConclusion,
     HypothesisReport, Invariant, InvariantConclusion, InvariantReport, Model, ModelBuilder,
-    NamedPredicate, Predicate, PredicateDescription, PredicateExpression, PredicateKind, Premise,
-    ReachabilityConclusion, ReachabilityReport, SearchCoverage, SearchLimits, Snapshot, Source,
-    State, Trace, TraceStep, Transition, TransitionInfo, Value,
+    NamedPredicate, PermittedEnding, Predicate, PredicateDescription, PredicateExpression,
+    PredicateKind, Premise, ProgressionConclusion, ProgressionQuery, ProgressionReport,
+    ProjectedCoverage, ReachabilityConclusion, ReachabilityReport, SearchCoverage, SearchLimits,
+    SlicedReachabilityReport, Snapshot, Source, State, Trace, TraceStep, Transition,
+    TransitionInfo, Value,
 };

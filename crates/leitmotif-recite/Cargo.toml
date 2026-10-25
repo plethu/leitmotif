@@ -1,0 +1,45 @@
+[package]
+name = "leitmotif-recite"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Typed finite host bindings for compiled Recite dialogue"
+readme = "../../README.md"
+keywords = ["narrative", "verification", "dialogue"]
+categories = ["game-development"]
+publish = false
+
+[dependencies]
+leitmotif = { path = "../leitmotif", version = "0.1.0-alpha.0" }
+recite-core = { version = "0.1.0", git = "https://github.com/plethu/recite", rev = "6ddf13bb944dc7b1f0528654a2e70e243e54bb6f" }
+recite-runtime = { version = "0.1.0", git = "https://github.com/plethu/recite", rev = "6ddf13bb944dc7b1f0528654a2e70e243e54bb6f" }
+thiserror.workspace = true
+
+[dev-dependencies]
+clap = { workspace = true, features = ["wrap_help"] }
+serde.workspace = true
+serde_json.workspace = true
+recite-compiler = { version = "0.1.0", git = "https://github.com/plethu/recite", rev = "6ddf13bb944dc7b1f0528654a2e70e243e54bb6f" }
+
+[[test]]
+name = "archive_contracts"
+path = "examples/support/archive_contracts.rs"
+
+[lints]
+workspace = true
+
+[[example]]
+name = "harbour-dialogue"
+path = "../leitmotif/examples/support/harbour_dialogue_fixture.rs"
+
+[[test]]
+name = "harbour_dialogue_contracts"
+path = "../leitmotif/examples/support/harbour_dialogue_contracts.rs"
+
+[[example]]
+name = "harbour-native-cases"
+path = "tests/native_assets/driver.rs"
+test = true

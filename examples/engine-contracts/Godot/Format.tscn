@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://ResourceFormat.cs" id="1_x7afd"]
+
+[node name="Format" type="Node"]
+script = ExtResource("1_x7afd")

@@ -2,10 +2,13 @@ use std::collections::BTreeMap;
 
 use serde::Serialize;
 
+mod progression;
+pub use progression::{ProgressionConclusion, ProgressionReport};
+
 use super::{Source, Value};
 
 /// Experimental report format; no stable persistence contract is promised yet.
-pub const EXPERIMENTAL_SCHEMA_VERSION: &str = "leitmotif.experimental.v1";
+pub const EXPERIMENTAL_SCHEMA_VERSION: &str = "leitmotif.experimental.v2";
 
 /// Deterministic BFS bounds. Zero states permits no state inspection.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
@@ -34,7 +37,7 @@ pub struct SearchCoverage {
     pub evaluated_states: usize,
     /// Deepest evaluated distance, absent if no state was evaluated.
     pub deepest_evaluated: Option<usize>,
-    /// True only when all reachable states were evaluated and expanded.
+    /// True only when the query's reachable state space is exhausted.
     pub exhausted: bool,
     /// A distinct successor could not be admitted within the state budget.
     pub state_limit_hit: bool,
@@ -161,8 +164,14 @@ pub enum ReachabilityConclusion {
 /// Reachability result with query, provenance and deterministic coverage.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize)]
 pub struct ReachabilityReport {
+    /// Complete supplied assignment, including settings, even without a witness.
+    pub initial: Snapshot,
     /// Experimental report format identifier.
     pub schema_version: String,
+    /// Library version that produced the result.
+    pub tool_version: String,
+    /// SHA-256 of the ordered semantic model; excludes provenance and run inputs.
+    pub model_id: String,
     /// Named model context.
     pub context: String,
     /// Explicit requested predicate.
@@ -193,8 +202,14 @@ pub enum InvariantConclusion {
 /// Invariant verification report.
 #[derive(Clone, Debug, PartialEq, Eq, Serialize)]
 pub struct InvariantReport {
+    /// Complete supplied assignment, including settings, even without a witness.
+    pub initial: Snapshot,
     /// Experimental report format identifier.
     pub schema_version: String,
+    /// Library version that produced the result.
+    pub tool_version: String,
+    /// SHA-256 of the ordered semantic model; excludes provenance and run inputs.
+    pub model_id: String,
     /// Named model context.
     pub context: String,
     /// All explicitly declared invariants, in authoring order.
@@ -227,6 +242,10 @@ pub enum HypothesisConclusion {
 pub struct HypothesisReport {
     /// Experimental report format identifier.
     pub schema_version: String,
+    /// Library version that produced the result.
+    pub tool_version: String,
+    /// SHA-256 of the ordered semantic model; excludes provenance and run inputs.
+    pub model_id: String,
     /// Named model context.
     pub context: String,
     /// Explicit hypothesis.

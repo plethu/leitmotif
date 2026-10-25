@@ -1,0 +1,15 @@
+<Project Sdk="Godot.NET.Sdk/4.6.3">
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <EnableDynamicLoading>true</EnableDynamicLoading>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="../Shared/Harbour.csproj" />
+        <Compile Include="../tests/AcceptanceCases.cs" />
+        <Compile Include="../Shared/HarbourState.cs" />
+    </ItemGroup>
+</Project>

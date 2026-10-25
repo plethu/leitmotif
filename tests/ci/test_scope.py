@@ -2,11 +2,10 @@
 
 import importlib.util
 import os
-from pathlib import Path
 import subprocess
 import tempfile
 import unittest
-
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location("ci_scope", ROOT / "scripts/ci_scope.py")
@@ -17,15 +16,26 @@ SPEC.loader.exec_module(SCOPE)
 class ScopeTests(unittest.TestCase):
     def test_only_known_documentation_can_skip_rust(self):
         self.assertFalse(SCOPE.needs_rust(["docs/guide.md", "CONTRIBUTING.md"]))
-        for path in ["README.md", "crates/lib.rs", "Cargo.lock", ".mise.toml",
-                     ".github/workflows/check.yml", "new-input", "docs/example.rs"]:
+        for path in [
+            "README.md",
+            "crates/lib.rs",
+            "Cargo.lock",
+            ".mise.toml",
+            ".github/workflows/check.yml",
+            "new-input",
+            "docs/example.rs",
+        ]:
             with self.subTest(path=path):
                 self.assertTrue(SCOPE.needs_rust(["docs/notes.md", path]))
         self.assertTrue(SCOPE.needs_rust([]))
 
     def test_events_without_change_history_run_everything(self):
-        for event, base in [("schedule", "abc"), ("workflow_dispatch", "abc"),
-                            ("push", "0" * 40), ("pull_request", "")]:
+        for event, base in [
+            ("schedule", "abc"),
+            ("workflow_dispatch", "abc"),
+            ("push", "0" * 40),
+            ("pull_request", ""),
+        ]:
             with self.subTest(event=event, base=base):
                 self.assertTrue(SCOPE.select_rust(event, base, "HEAD"))
 
@@ -50,8 +60,9 @@ class GitHistoryTests(unittest.TestCase):
 
     @staticmethod
     def git(*arguments):
-        return subprocess.run(["git", *arguments], check=True, capture_output=True,
-                              text=True).stdout
+        return subprocess.run(
+            ["git", *arguments], check=True, capture_output=True, text=True
+        ).stdout
 
     def commit(self):
         self.git("add", "--all")
@@ -63,10 +74,18 @@ class GitHistoryTests(unittest.TestCase):
         self.assertFalse(SCOPE.select_rust("push", self.base, "HEAD"))
         destination = Path("output")
         result = subprocess.run(
-            ["python", str(ROOT / "scripts/ci_scope.py"), "--event", "push",
-             "--base", self.base],
+            [
+                "python",
+                str(ROOT / "scripts/ci_scope.py"),
+                "--event",
+                "push",
+                "--base",
+                self.base,
+            ],
             env={**os.environ, "GITHUB_OUTPUT": str(destination)},
-            check=True, capture_output=True, text=True,
+            check=True,
+            capture_output=True,
+            text=True,
         )
         self.assertEqual(result.stdout, "rust=false\n")
         self.assertEqual(destination.read_text(), result.stdout)
@@ -79,8 +98,9 @@ class GitHistoryTests(unittest.TestCase):
     def test_rename_from_source_to_docs_is_checked(self):
         self.git("mv", "source.rs", "docs/source.md")
         self.commit()
-        self.assertEqual(set(SCOPE.changed_paths(self.base, "HEAD")),
-                         {"source.rs", "docs/source.md"})
+        self.assertEqual(
+            set(SCOPE.changed_paths(self.base, "HEAD")), {"source.rs", "docs/source.md"}
+        )
         self.assertTrue(SCOPE.select_rust("push", self.base, "HEAD"))
 
     def test_pr_uses_merge_base_not_unrelated_target_changes(self):

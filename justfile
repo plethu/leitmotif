@@ -3,18 +3,24 @@ set positional-arguments
 
 # Formatting, spelling, workflows, and CI policy.
 mod quality '.config/just/quality.just'
+mod engine '.config/just/engine.just'
+mod native '.config/just/native.just'
 
 default:
     @just --list
 
-# Deliberately format Rust and TOML sources.
+# Format every authored language with the pinned project tools.
 fmt:
     cargo fmt --all
+    just native fmt
     just quality fmt
+    just engine fmt
 
 fmt-check:
     cargo fmt --all -- --check
+    just native fmt-check
     just quality fmt-check
+    just engine fmt-check
 
 clippy:
     cargo clippy --workspace --all-targets --all-features --locked -- -D warnings
@@ -38,14 +44,37 @@ supply-chain:
     cargo deny check advisories bans licenses sources
     cargo machete
 
+# Include executable examples, excluding tests and dependency/toolchain sources.
+coverage:
+    cargo +nightly-2026-06-10 llvm-cov nextest --workspace --all-features --locked --branch --no-default-ignore-filename-regex --ignore-filename-regex '(^|/)(tests|target|rustc|\.cargo|\.rustup)/' --json --output-path "${CARGO_TARGET_DIR:-target}/coverage.json"
+    python scripts/coverage_gate.py "${CARGO_TARGET_DIR:-target}/coverage.json"
+
 # Complete acceptance gate; CI invokes the same constituent lanes.
 check:
     just quality check
     just core-check
     just supply-chain
+    just coverage
+    just report-check
+    just engine check
+    just native check
 
 verify: check
 
 # Run the Rust-authored demonstration fixtures.
 demo *args:
     cargo run --locked -p leitmotif --example check -- "$@"
+
+# Repeat isolated release-mode town measurements and emit JSON Lines.
+town-scaling *args:
+    python scripts/measure_town.py "$@"
+
+# Gate the actual archive runtime report with the independent serialized-data consumer.
+report-check:
+    mkdir -p "${CARGO_TARGET_DIR:-target}/report-consumer"
+    cargo run --locked -p leitmotif-recite --example archive -- --json > "${CARGO_TARGET_DIR:-target}/report-consumer/archive.json"
+    python scripts/report_consumer.py "${CARGO_TARGET_DIR:-target}/report-consumer/archive.json" --summary "${GITHUB_STEP_SUMMARY:-${CARGO_TARGET_DIR:-target}/report-consumer/summary.md}"
+
+# Compare optional SMT classification with complete finite enumeration.
+smt-comparison *args:
+    cargo run --locked --release -p leitmotif --features smt --example smt_comparison -- "$@"

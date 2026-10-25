@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://CoverageDriver.cs" id="1_rusw3"]
+
+[node name="Coverage" type="Node"]
+script = ExtResource("1_rusw3")

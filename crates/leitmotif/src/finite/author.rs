@@ -1,4 +1,8 @@
-use std::{collections::BTreeSet, marker::PhantomData};
+use std::path::PathBuf;
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    marker::PhantomData,
+};
 
 use super::{
     Assignment, Domain, Error, ErrorKind, Fact, FactHandle, FactInfo, Model, Predicate, Source,
@@ -88,6 +92,7 @@ impl Premise {
 #[derive(Debug)]
 pub struct ModelBuilder {
     pub(super) context: String,
+    pub(super) source_root: Option<PathBuf>,
     pub(super) owner: Identity,
     pub(super) facts: Vec<FactInfo>,
     pub(super) transitions: Vec<Transition>,
@@ -105,11 +110,21 @@ impl ModelBuilder {
         validate_name(&context, "context", &Source::caller())?;
         Ok(Self {
             context,
+            source_root: None,
             owner: Identity::new(),
             facts: Vec::new(),
             transitions: Vec::new(),
             invariants: Vec::new(),
         })
+    }
+
+    /// Configures the checkout root for portable report source references.
+    /// Original compiler locations are always retained. Paths outside this root
+    /// retain their original location without a relative alias.
+    #[must_use]
+    pub fn with_source_root(mut self, root: impl Into<PathBuf>) -> Self {
+        self.source_root = Some(root.into());
+        self
     }
 
     /// Registers a fact and validates its explicitly finite encoding domain.
@@ -121,11 +136,12 @@ impl ModelBuilder {
     pub fn fact<F: Fact>(&mut self) -> Result<FactHandle<F>, Error> {
         let provenance = Source::caller();
         validate_name(F::KEY, "fact", &provenance)?;
-        if self.facts.iter().any(|fact| fact.key == F::KEY) {
+        if let Some(original) = self.facts.iter().find(|fact| fact.key == F::KEY) {
             return Err(Error::new(
                 ErrorKind::DuplicateId {
                     kind: "fact",
                     id: F::KEY.to_owned(),
+                    original: Box::new(original.provenance.clone()),
                 },
                 provenance,
             ));
@@ -211,20 +227,22 @@ pub(super) fn validate_name(
 }
 
 pub(super) fn unique_name(
-    seen: &mut BTreeSet<String>,
+    seen: &mut BTreeMap<String, Source>,
     name: &str,
     kind: &'static str,
     provenance: &Source,
 ) -> Result<(), Error> {
     validate_name(name, kind, provenance)?;
-    if !seen.insert(name.to_owned()) {
+    if let Some(original) = seen.get(name) {
         return Err(Error::new(
             ErrorKind::DuplicateId {
                 kind,
                 id: name.to_owned(),
+                original: Box::new(original.clone()),
             },
             provenance.clone(),
         ));
     }
+    seen.insert(name.to_owned(), provenance.clone());
     Ok(())
 }
