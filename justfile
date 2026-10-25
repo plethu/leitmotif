@@ -43,6 +43,7 @@ core-check:
 supply-chain:
     cargo deny check advisories bans licenses sources
     cargo machete
+    python -m unittest discover -s tests/dependencies -v
 
 # Include executable examples, excluding tests and dependency/toolchain sources.
 coverage:
