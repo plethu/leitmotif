@@ -138,6 +138,12 @@ class EngineCheckTests(unittest.TestCase):
             ),
             (
                 "",
+                "ERROR: child lifecycle failed",
+                {"normal_godot": True},
+                "unexpected Godot error",
+            ),
+            (
+                "",
                 "engine banner only",
                 {"completion": "Harbour conformance:"},
                 "missing host conformance",

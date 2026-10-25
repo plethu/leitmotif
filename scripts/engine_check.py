@@ -25,7 +25,7 @@ def run(command, expected=0, *, output=None, completion=None, normal_godot=False
         timeout=120,
     )
     print(result.stderr, end="", file=sys.stderr)
-    if normal_godot and "ERROR:" in result.stderr:
+    if normal_godot and "ERROR:" in result.stdout + result.stderr:
         raise ValueError("unexpected Godot error during normal lifecycle")
     if completion and completion not in result.stdout:
         raise ValueError("missing host conformance completion marker")
