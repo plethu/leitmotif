@@ -195,3 +195,7 @@ impl Host {
             .ok_or(Error::MissingExecution)
     }
 }
+
+#[cfg(test)]
+#[path = "tests/host.rs"]
+mod tests;

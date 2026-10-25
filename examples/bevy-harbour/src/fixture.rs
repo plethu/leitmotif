@@ -4,7 +4,7 @@ mod composed_town;
 #[path = "host.rs"]
 mod host;
 #[cfg(test)]
-#[path = "tests.rs"]
+#[path = "tests/mod.rs"]
 mod tests;
 #[path = "verification.rs"]
 mod verification;

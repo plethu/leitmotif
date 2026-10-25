@@ -233,3 +233,57 @@ fn initially_satisfied_ending_accepts_a_genuine_empty_witness() {
     );
     assert_eq!(host.state().unwrap(), &before);
 }
+
+#[test]
+fn audit_reports_guard_disagreement_from_independently_captured_states() {
+    let initial = Harbour::initial();
+    let mut warned = Host::new(initial.clone(), Lighting::SpendOil);
+    assert!(warned.apply(Action::ShareWarning).unwrap());
+    let town = composed_town::project(&warned.state().unwrap().projection()).unwrap();
+    let Err(Error::Divergence(difference)) = verification::audit(&town, &initial) else {
+        panic!("expected independently captured state disagreement")
+    };
+    assert_eq!(difference.action, "keeper.share_warning");
+    assert!(!difference.expected_enabled);
+    assert!(difference.accepted);
+    assert_eq!(difference.verified_prefix, 0);
+}
+
+#[test]
+fn a_report_cannot_replay_against_a_different_town_initial_state() {
+    let mut town = composed_town::town().unwrap();
+    let report = town
+        .model
+        .reachability(&town.initial, &town.sheltered, LIMITS)
+        .unwrap();
+    town.initial = town
+        .model
+        .apply(&town.initial, Action::ShareWarning.id())
+        .unwrap()
+        .unwrap();
+    let mut host = Host::new(Harbour::initial(), Lighting::SpendOil);
+    assert!(matches!(
+        verification::replay(&town, &report, &mut host),
+        Err(Error::InvalidWitness)
+    ));
+    assert_eq!(host.state().unwrap(), &Harbour::initial());
+}
+
+#[test]
+fn a_known_but_disabled_witness_action_fails_before_effects() {
+    let town = composed_town::town().unwrap();
+    let mut report = town
+        .model
+        .reachability(&town.initial, &town.sheltered, LIMITS)
+        .unwrap();
+    let ReachabilityConclusion::Reached { witness } = &mut report.conclusion else {
+        panic!("expected witness")
+    };
+    witness.steps.first_mut().unwrap().transition.id = Action::Shelter.id().into();
+    let mut host = Host::new(Harbour::initial(), Lighting::SpendOil);
+    assert!(matches!(
+        verification::replay(&town, &report, &mut host),
+        Err(Error::InvalidWitness)
+    ));
+    assert_eq!(host.state().unwrap(), &Harbour::initial());
+}
