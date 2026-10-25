@@ -92,7 +92,8 @@ both ending witnesses take three events.
 This `publish = false` experiment runs from this checkout. Its workspace pins only
 `oxidd-derive` to a release-compatible diagnostics backport in
 [our OxiDD fork](https://github.com/plethu/oxidd/commit/c211b11c3beae9c1e35fa16b7b4871992134404a);
-the remaining OxiDD packages use registry release 0.13.0. Cargo does not inherit
+the BDD facade uses registry release 0.13.0 with compatible registry dependencies
+(including manager-index 0.13.1 and dump 0.8.0). Cargo does not inherit
 a dependency workspace's patch, so this is not a supported downstream library
 feature. Remove the patch when a compatible upstream release passes the dependency
 policy and focused semantic and resource checks. Reassess if the patch expands
