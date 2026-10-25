@@ -30,8 +30,11 @@ internal static class Wire
 
     public static void Shape(JsonElement value, params string[] keys)
     {
-        var actual = value.EnumerateObject().Select(p => p.Name).Order().ToArray();
-        Require(actual.SequenceEqual(keys.Order()), "missing, duplicate or unknown fields");
+        var actual = value.EnumerateObject().Select(p => p.Name).OrderBy(value => value).ToArray();
+        Require(
+            actual.SequenceEqual(keys.OrderBy(value => value)),
+            "missing, duplicate or unknown fields"
+        );
     }
 
     public static HarbourState State(JsonElement value, bool tagged)

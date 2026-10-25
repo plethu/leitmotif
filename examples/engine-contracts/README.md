@@ -43,7 +43,9 @@ Godot coverage uses a test-only scene after ordinary Node completion. Its manage
 flushes Coverlet but emits native cleanup warnings, which the gate preserves. Separate
 normal-exit checks must pass. Coverage includes every authored production C# file,
 including the console entrypoint and Godot Node. Only identified generated build output
-and test drivers are omitted; missing instrumentation and unknown sources fail.
+and test drivers are omitted. The empty compiler marker is checked against its exact
+declaration before classifying executable sources; added behavior fails. Missing
+instrumentation and unknown sources fail.
 
 These checks currently cover Linux x86_64, Godot .NET 4.6.3, and SDK 10.0.203. The .NET
 console is not a Unity Editor, Mono, or IL2CPP integration. No GDExtension or Bevy
@@ -61,3 +63,16 @@ beacon request, and the dialogue continues only after a failed acknowledgement. 
 runtime boundaries are replayed against a fresh session. These are three bounded
 scripted interactions, not an exhaustive combined dialogue/host search or a native Godot
 integration.
+
+The Shared library is compiled once for .NET Standard 2.1 with the pinned modern
+.NET SDK; Console and Godot consume that same target. The acceptance runner checks
+the loaded library's target before replaying evidence. Modern C# source is retained:
+this is a precompiled library route, not a promise that Unity can compile the source.
+
+A precompiled deployment needs `Harbour.dll` and the runtime assets selected for its
+target. Build Shared with `-p:CopyLocalLockFileAssemblies=true` to materialize that
+candidate set: System.Text.Json, System.Text.Encodings.Web, System.IO.Pipelines,
+Microsoft.Bcl.AsyncInterfaces, and System.Runtime.CompilerServices.Unsafe. Package
+versions are locked. The .NET 10 consumers select their own framework-compatible
+assets; their tests do not execute that candidate closure under Unity. Editor import,
+assembly conflicts, Mono, IL2CPP, stripping, and player distribution remain untested.

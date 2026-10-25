@@ -4,7 +4,9 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
+from scripts import engine_coverage
 from scripts.engine_coverage import check, counts
 
 
@@ -91,6 +93,55 @@ class AuthoredCoverageTests(unittest.TestCase):
         self.assertEqual(
             self.measure([report(self.node), report(alias)]), ((1, 1), (1, 1))
         )
+
+    def test_exact_empty_compiler_marker_has_no_executable_sequence_points(self):
+        marker = self.root / "Shared/IsExternalInit.cs"
+        marker.parent.mkdir()
+        marker.write_text(
+            "namespace System.Runtime.CompilerServices;\n\n"
+            "internal static class IsExternalInit { }\n",
+            encoding="utf-8",
+        )
+        with patch.object(engine_coverage, "COMPILER_MARKER", marker):
+            self.assertEqual(
+                self.measure([report(self.node)], [self.node, marker]),
+                ((1, 1), (1, 1)),
+            )
+            with self.assertRaisesRegex(ValueError, "unknown coverage source"):
+                self.measure([report(self.node), report(marker)], [self.node, marker])
+        with self.assertRaisesRegex(ValueError, "missing authored"):
+            self.measure([report(self.node)], [self.node, marker])
+
+    def test_marker_rejects_behavior_directives_and_invalid_tokens_even_with_hits(self):
+        marker = self.root / "IsExternalInit.cs"
+        declaration = (
+            "namespace System.Runtime.CompilerServices; "
+            "internal static class IsExternalInit {}"
+        )
+        sources = [
+            declaration.replace("{}", "{ internal static void Run() {} }"),
+            declaration.replace(
+                "{}", "{ internal static int Value = System.Environment.TickCount; }"
+            ),
+            declaration + " internal class AnotherType {}",
+            "#if NETSTANDARD2_1\n" + declaration + "\n#endif",
+            declaration.replace("internal static", "internalstatic"),
+            declaration.replace("namespace", "name space"),
+            declaration.replace("internal static", "internal\u0085static"),
+            declaration.replace("internal static", "internal\u00a0static"),
+            "\ufeff" + declaration,
+        ]
+        with patch.object(engine_coverage, "COMPILER_MARKER", marker):
+            for source in sources:
+                with self.subTest(source=source):
+                    marker.write_text(source, encoding="utf-8")
+                    with self.assertRaisesRegex(ValueError, "unsupported source"):
+                        self.measure(
+                            [report(self.node), report(marker)], [self.node, marker]
+                        )
+            marker.write_bytes(b"\xff")
+            with self.assertRaisesRegex(ValueError, "invalid compiler marker encoding"):
+                self.measure([report(self.node)], [self.node, marker])
 
     def test_bad_hit_counts_are_rejected(self):
         for hits in [-1, True, "1"]:

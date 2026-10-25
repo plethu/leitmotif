@@ -1,14 +1,43 @@
 """Measure every authored production C# file from unfiltered Coverlet reports."""
 
 import json
+import re
 from pathlib import Path
 
 from scripts.coverage_gate import threshold_failures
 
+COMPILER_MARKER = (
+    Path(__file__).resolve().parents[1]
+    / "examples/engine-contracts/Shared/IsExternalInit.cs"
+)
+_ASCII_SPACE = r"[ \t\r\n\f\v]"
+_MARKER_DECLARATION = re.compile(
+    rf"{_ASCII_SPACE}*namespace{_ASCII_SPACE}+"
+    rf"System\.Runtime\.CompilerServices{_ASCII_SPACE}*;"
+    rf"{_ASCII_SPACE}*internal{_ASCII_SPACE}+static{_ASCII_SPACE}+"
+    rf"class{_ASCII_SPACE}+IsExternalInit{_ASCII_SPACE}*"
+    rf"\{{{_ASCII_SPACE}*\}}{_ASCII_SPACE}*"
+)
+
+
+def executable_sources(expected):
+    """Validate the fixed empty compiler marker before classifying executable files."""
+    expected = {path.resolve() for path in expected}
+    marker = COMPILER_MARKER.resolve()
+    if marker in expected:
+        try:
+            declaration = marker.read_text(encoding="utf-8")
+        except UnicodeError as error:
+            raise ValueError(f"invalid compiler marker encoding: {marker}") from error
+        if _MARKER_DECLARATION.fullmatch(declaration) is None:
+            raise ValueError(f"compiler marker contains unsupported source: {marker}")
+        expected.remove(marker)
+    return expected
+
 
 def counts(reports, expected, generated_roots, test_root):
     """Union instrumented points by full source/method identity across host processes."""
-    expected = {path.resolve() for path in expected}
+    expected = executable_sources(expected)
     lines = {}
     branches = {}
     measured = set()
