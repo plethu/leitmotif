@@ -25,7 +25,7 @@ def run(command, expected=0, *, output=None, completion=None, normal_godot=False
         timeout=120,
     )
     print(result.stderr, end="", file=sys.stderr)
-    if normal_godot and "ERROR:" in result.stderr:
+    if normal_godot and "ERROR:" in result.stdout + result.stderr:
         raise ValueError("unexpected Godot error during normal lifecycle")
     if completion and completion not in result.stdout:
         raise ValueError("missing host conformance completion marker")
@@ -172,13 +172,15 @@ def execute(binary, output):
             "coverlet",
             godot_dll,
             "--target",
-            godot,
+            "env",
             "--targetargs",
             subprocess.list2cmdline(
                 list(
                     map(
                         str,
                         [
+                            "HARBOUR_COVERAGE=1",
+                            godot,
                             "--headless",
                             "--path",
                             godot_root,
@@ -194,6 +196,7 @@ def execute(binary, output):
             output / "godot-coverage.json",
         ],
         completion="Coverage harness complete",
+        normal_godot=True,
     )
     print(
         check(

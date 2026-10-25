@@ -5,6 +5,7 @@ public partial class CoverageDriver : Node
 {
     public override void _Ready()
     {
+        var exitCode = 3;
         try
         {
             var mode = OS.GetEnvironment("HARBOUR_TEST_MODE");
@@ -19,12 +20,46 @@ public partial class CoverageDriver : Node
                 );
             AcceptanceCases.Run(System.IO.Path.GetDirectoryName(OS.GetCmdlineUserArgs()[0])!);
             System.Console.WriteLine("Coverage harness complete");
-            System.Environment.Exit(harbour.ExitCode);
+            exitCode = harbour.ExitCode;
         }
         catch (System.Exception error)
         {
             System.Console.Error.WriteLine($"Coverage harness failed: {error.Message}");
-            System.Environment.Exit(3);
+        }
+        try
+        {
+            if (OS.GetEnvironment("HARBOUR_COVERAGE") == "1")
+                FlushCoverage();
+        }
+        catch (System.Exception error)
+        {
+            System.Console.Error.WriteLine($"Coverage flush failed: {error.Message}");
+            exitCode = 3;
+        }
+        GetTree().Quit(exitCode);
+    }
+
+    private static void FlushCoverage()
+    {
+        // Coverlet 10.1.0's injected unload callback flushes hits without ending the CLR.
+        // Environment.Exit also runs Godot's native shutdown from the CLR shutdown thread.
+        foreach (
+            var assembly in new[]
+            {
+                typeof(HarbourNode).Assembly,
+                typeof(Harbour.Consumer).Assembly,
+            }
+        )
+        {
+            var tracker = assembly
+                .GetTypes()
+                .Single(type => type.Namespace == "Coverlet.Core.Instrumentation.Tracker");
+            var unload =
+                tracker.GetMethod(
+                    "UnloadModule",
+                    new[] { typeof(object), typeof(System.EventArgs) }
+                ) ?? throw new System.InvalidOperationException("Missing Coverlet unload callback");
+            unload.CreateDelegate<System.EventHandler>()(null, System.EventArgs.Empty);
         }
     }
 }
