@@ -74,3 +74,7 @@ report-check:
     mkdir -p "${CARGO_TARGET_DIR:-target}/report-consumer"
     cargo run --locked -p leitmotif-recite --example archive -- --json > "${CARGO_TARGET_DIR:-target}/report-consumer/archive.json"
     python scripts/report_consumer.py "${CARGO_TARGET_DIR:-target}/report-consumer/archive.json" --summary "${GITHUB_STEP_SUMMARY:-${CARGO_TARGET_DIR:-target}/report-consumer/summary.md}"
+
+# Compare optional SMT classification with complete finite enumeration.
+smt-comparison *args:
+    cargo run --locked --release -p leitmotif --features smt --example smt_comparison -- "$@"

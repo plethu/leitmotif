@@ -81,6 +81,37 @@ process status.
 For state-space measurements, see [Measuring synthetic towns](scaling.md).
 For development commands, see [CONTRIBUTING.md](../CONTRIBUTING.md).
 
+## Compare optional SMT classification
+
+The experimental `smt` Cargo feature adds `Model::classify_smt` and the types in
+`leitmotif::smt`. Supply an executable and a positive soft timeout with
+`Options::new`. The default library and `Model::classify` need no solver.
+The pinned Z3 release is installed through mise.
+
+Compare the same authored mystery or a larger prerequisite set:
+
+```sh
+mise exec -- just smt-comparison --fixture mystery --engine enumeration
+mise exec -- just smt-comparison --fixture mystery --engine smt
+mise exec -- just smt-comparison --facts 20 --query inconsistent --engine enumeration
+mise exec -- just smt-comparison --facts 20 --query inconsistent --engine smt
+```
+
+These commands print JSON measurements with the complete report. Solver reports
+record at most two checks instead of enumeration coverage. `Possible` includes
+both a supporting assignment and a counterexample; incomplete checks retain
+only the assignment already validated, if any. Unsat cores identify supplied
+premises, domain restrictions and hypothesis checks separately. They are solver
+results, without a minimality or independently checked proof claim.
+
+`--soft-timeout-ms` applies to each solver check. It does not bound startup,
+protocol I/O, assignment/core retrieval or synchronous cleanup. Unsupported
+commands and deployment failures return distinct errors. The experiment trusts
+pinned Z3's ordinary ASCII replies: rsmt2 can panic on malformed non-ASCII check,
+model or core responses. General solver deployment remains deferred.
+Retain the model source, lockfile, toolchain and reported solver version when
+comparing runs. Enumeration remains the reference for small finite cases.
+
 ## Progression traps
 
 `Model::progression` checks whether each reachable nonterminal state has a route

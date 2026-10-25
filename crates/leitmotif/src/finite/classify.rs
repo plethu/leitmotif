@@ -74,6 +74,13 @@ impl Candidates {
     }
 }
 
+pub(super) struct ClassificationQuery {
+    pub(super) hypothesis: CompiledPredicate,
+    pub(super) premises: Vec<CompiledPredicate>,
+    pub(super) hypothesis_description: super::PredicateDescription,
+    pub(super) descriptions: Vec<NamedPredicate>,
+}
+
 struct Evidence {
     coverage: ClassificationCoverage,
     witness: Option<Snapshot>,
@@ -125,6 +132,27 @@ impl Model {
         premises: &[Premise],
         limits: ClassificationLimits,
     ) -> Result<HypothesisReport, Error> {
+        let query = self.prepare_classification(hypothesis, premises)?;
+        let evidence = self.enumerate(&query.hypothesis, &query.premises, limits)?;
+        Ok(HypothesisReport {
+            schema_version: EXPERIMENTAL_SCHEMA_VERSION.to_owned(),
+            tool_version: env!("CARGO_PKG_VERSION").to_owned(),
+            model_id: self.fingerprint.clone(),
+            context: self.context.clone(),
+            hypothesis: query.hypothesis_description,
+            premises: query.descriptions,
+            conclusion: evidence.conclusion(),
+            coverage: evidence.coverage,
+            witness: evidence.witness,
+            counterexample: evidence.counterexample,
+        })
+    }
+
+    pub(super) fn prepare_classification(
+        &self,
+        hypothesis: &Predicate,
+        premises: &[Premise],
+    ) -> Result<ClassificationQuery, Error> {
         let compiled_hypothesis = self.compile_predicate(hypothesis)?;
         let mut seen = BTreeMap::new();
         let mut compiled_premises = Vec::new();
@@ -140,18 +168,11 @@ impl Model {
             self.portable_named(&mut description);
             descriptions.push(description);
         }
-        let evidence = self.enumerate(&compiled_hypothesis, &compiled_premises, limits)?;
-        Ok(HypothesisReport {
-            schema_version: EXPERIMENTAL_SCHEMA_VERSION.to_owned(),
-            tool_version: env!("CARGO_PKG_VERSION").to_owned(),
-            model_id: self.fingerprint.clone(),
-            context: self.context.clone(),
-            hypothesis: self.portable_predicate(describe(hypothesis)),
-            premises: descriptions,
-            conclusion: evidence.conclusion(),
-            coverage: evidence.coverage,
-            witness: evidence.witness,
-            counterexample: evidence.counterexample,
+        Ok(ClassificationQuery {
+            hypothesis: compiled_hypothesis,
+            premises: compiled_premises,
+            hypothesis_description: self.portable_predicate(describe(hypothesis)),
+            descriptions,
         })
     }
 
@@ -190,7 +211,7 @@ impl Model {
     }
 }
 
-fn satisfies(premises: &[CompiledPredicate], values: &[Value]) -> Result<bool, Error> {
+pub(super) fn satisfies(premises: &[CompiledPredicate], values: &[Value]) -> Result<bool, Error> {
     for premise in premises {
         if !premise.evaluate(values)? {
             return Ok(false);

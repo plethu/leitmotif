@@ -23,6 +23,15 @@ rumdl = "0.3.0"
 "aqua:rhysd/actionlint" = "1.7.12"
 shellcheck = "0.11.0"
 
+[tools."github:Z3Prover/z3"]
+version = "5.3.1"
+version_prefix = "z3-"
+strip_components = 1
+bin_path = "bin"
+
+[tools."github:Z3Prover/z3".platforms]
+linux-x64 = { asset_pattern = "z3-5.3.1-x64-glibc-2.39.zip", checksum = "sha256:acca9625e8cc8edeb9647b653a1bd696544ddeb5d1c2970a4576734a0c175b40" }
+
 [settings]
 # Prefer upstream tool binaries, with source builds as a fallback.
 cargo.binstall_native = true

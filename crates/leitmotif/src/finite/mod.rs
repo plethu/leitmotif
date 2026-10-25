@@ -11,6 +11,8 @@ mod reproducibility;
 mod search;
 mod sliced_reports;
 mod slicing;
+#[cfg(feature = "smt")]
+pub mod smt;
 mod value;
 
 pub use author::{Invariant, ModelBuilder, Premise, Transition};
