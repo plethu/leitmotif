@@ -1,7 +1,7 @@
 use leitmotif::{Predicate, ReachabilityConclusion, SearchLimits};
 
 use super::{Failure, replay};
-use crate::symbolic_fixture::scaling_town::{Parameters, Resource, Town};
+use crate::fixture::scaling_town::{Parameters, Resource, Town};
 
 #[test]
 fn reference_replay_rejects_corrupted_witnesses() {

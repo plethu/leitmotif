@@ -89,7 +89,9 @@ both ending witnesses take three events.
 
 ## Optional symbolic comparison
 
-This `publish = false` experiment runs from this checkout. Its workspace pins only
+This `publish = false` experiment has its own workspace under
+`examples/symbolic-town`, with a locked dependency graph separate from the library
+and Bevy consumer. Its workspace pins only
 `oxidd-derive` to a release-compatible diagnostics backport in
 [our OxiDD fork](https://github.com/plethu/oxidd/commit/c211b11c3beae9c1e35fa16b7b4871992134404a);
 the BDD facade uses registry release 0.13.0 with compatible registry dependencies
@@ -99,16 +101,22 @@ feature. Remove the patch when a compatible upstream release passes the dependen
 policy and focused semantic and resource checks. Reassess if the patch expands
 beyond derive diagnostics. Production backend adoption remains deferred.
 
+Run its strict checks with `mise exec -- just symbolic check`; the aggregate gate
+and Rust CI lane include the same checks and production coverage thresholds.
+The measurement wrapper hashes this workspace's `Cargo.lock`. These checks cover
+the standalone comparison. Moving symbolic exploration into the library or an
+engine consumer would require validating the combined dependency graph again.
+
 Build the private OxiDD experiment explicitly:
 
 ```sh
-mise exec -- cargo build --release --locked -p leitmotif \
-  --features symbolic-experiment --example symbolic_town
+mise exec -- cargo build --release --locked \
+  --manifest-path examples/symbolic-town/Cargo.toml
 mise exec -- python scripts/measure_symbolic.py \
-  --binary target/release/examples/symbolic_town \
+  --binary examples/symbolic-town/target/release/symbolic_town \
   --backend oxidd --family sparse --threads 4 --local-domain 3 --query unreachable
 mise exec -- python scripts/measure_symbolic.py \
-  --binary target/release/examples/symbolic_town \
+  --binary examples/symbolic-town/target/release/symbolic_town \
   --backend explicit --family coupled --threads 4 --local-domain 3 --query goal
 ```
 

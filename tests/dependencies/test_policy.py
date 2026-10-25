@@ -32,8 +32,15 @@ class DependencyPolicyTests(unittest.TestCase):
                 'edition = "2024"\n[workspace]\n[dependencies]\n'
                 'current = { package = "rustc-hash", version = "=2.1.3" }\n'
             )
-            for duplicate in [True, False]:
-                with self.subTest(duplicate=duplicate):
+            for config, duplicate in [
+                (config, duplicate)
+                for config in [
+                    ROOT / "deny.toml",
+                    ROOT / "examples/symbolic-town/deny.toml",
+                ]
+                for duplicate in [True, False]
+            ]:
+                with self.subTest(config=config, duplicate=duplicate):
                     manifest.write_text(
                         header
                         + (
@@ -56,7 +63,7 @@ class DependencyPolicyTests(unittest.TestCase):
                             "--manifest-path",
                             str(manifest),
                             "--config",
-                            str(ROOT / "deny.toml"),
+                            str(config),
                             "--locked",
                             "--offline",
                             "check",

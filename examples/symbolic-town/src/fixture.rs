@@ -1,4 +1,4 @@
-#[path = "scaling_town.rs"]
+#[path = "../../../crates/leitmotif/examples/support/scaling_town.rs"]
 mod scaling_town;
 #[path = "symbolic/mod.rs"]
 mod symbolic;

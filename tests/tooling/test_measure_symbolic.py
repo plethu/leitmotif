@@ -1,6 +1,7 @@
 """Limits and process failures must never masquerade as exhaustive reachability."""
 
 import argparse
+import hashlib
 import json
 import subprocess
 import sys
@@ -206,6 +207,13 @@ class SymbolicMeasurementTests(unittest.TestCase):
         ):
             self.assertEqual(measure_symbolic.main(), 0)
         self.assertEqual(output.call_count, 2)
+        root = Path(measure_symbolic.__file__).resolve().parents[1]
+        experiment_lock = root / "examples/symbolic-town/Cargo.lock"
+        expected_hash = hashlib.sha256(experiment_lock.read_bytes()).hexdigest()
+        core_hash = hashlib.sha256((root / "Cargo.lock").read_bytes()).hexdigest()
+        self.assertNotEqual(expected_hash, core_hash)
+        for call in output.call_args_list:
+            self.assertEqual(json.loads(call.args[0])["lock_sha256"], expected_hash)
         root = Path(measure_symbolic.__file__).resolve().parents[1]
         for call in run.call_args_list:
             if call.args[0][0] == "git":

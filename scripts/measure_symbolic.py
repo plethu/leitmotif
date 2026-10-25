@@ -158,7 +158,9 @@ def main():
     root = Path(__file__).resolve().parents[1]
     metadata = {
         "binary_sha256": hashlib.sha256(args.binary.resolve().read_bytes()).hexdigest(),
-        "lock_sha256": hashlib.sha256((root / "Cargo.lock").read_bytes()).hexdigest(),
+        "lock_sha256": hashlib.sha256(
+            (root / "examples/symbolic-town/Cargo.lock").read_bytes()
+        ).hexdigest(),
         "source_dirty": bool(
             subprocess.run(
                 ["git", "status", "--porcelain"],
