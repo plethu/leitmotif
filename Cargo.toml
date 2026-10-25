@@ -49,3 +49,6 @@ as_conversions = "deny"
 absolute_paths = "deny"
 allow_attributes_without_reason = "deny"
 excessive_nesting = "deny"
+
+[patch.crates-io]
+oxidd-derive = { git = "https://github.com/plethu/oxidd", rev = "c211b11c3beae9c1e35fa16b7b4871992134404a" }
