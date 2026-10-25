@@ -5,7 +5,7 @@ members = [
   "crates/leitmotif-recite",
   "examples/bevy-harbour",
 ]
-exclude = ["examples/godot-native"]
+exclude = ["examples/godot-native", "examples/symbolic-town"]
 
 [workspace.package]
 version = "0.1.0-alpha.0"
