@@ -1,6 +1,10 @@
 [workspace]
 resolver = "3"
-members = ["crates/leitmotif", "crates/leitmotif-recite"]
+members = [
+  "crates/leitmotif",
+  "crates/leitmotif-recite",
+  "examples/bevy-harbour",
+]
 exclude = ["examples/godot-native"]
 
 [workspace.package]
@@ -49,3 +53,7 @@ as_conversions = "deny"
 absolute_paths = "deny"
 allow_attributes_without_reason = "deny"
 excessive_nesting = "deny"
+
+[patch.crates-io]
+derive_more = { git = "https://github.com/JelteF/derive_more", rev = "a14b901cd21b27c88a05d4f0793651ede054979f" }
+derive_more-impl = { git = "https://github.com/JelteF/derive_more", rev = "a14b901cd21b27c88a05d4f0793651ede054979f" }
