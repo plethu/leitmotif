@@ -5,8 +5,9 @@ using Harbour;
 
 public static class AcceptanceCases
 {
-    public static void Run(string directory)
+    public static void Run(string directory, Func<string[], int>? consume = null)
     {
+        consume ??= args => new Consumer().Run(args);
         var framework = typeof(Consumer)
             .Assembly.GetCustomAttribute<TargetFrameworkAttribute>()
             ?.FrameworkName;
@@ -30,7 +31,7 @@ public static class AcceptanceCases
             var stem = Path.Combine(directory, $"negative-{next++}");
             File.WriteAllText(stem + ".request.json", input.ToJsonString());
             File.WriteAllText(stem + ".check.json", output.ToJsonString());
-            var actual = new Consumer().Run([stem + ".request.json", stem + ".check.json"]);
+            var actual = consume([stem + ".request.json", stem + ".check.json"]);
             if (actual != expected)
                 throw new InvalidOperationException(
                     $"case {next}: expected {expected}, got {actual}"
@@ -58,7 +59,7 @@ public static class AcceptanceCases
             }
         )
         {
-            var status = new Consumer().Run([
+            var status = consume([
                 Path.Combine(directory, name + ".request.json"),
                 Path.Combine(directory, name + ".check.json"),
             ]);
@@ -207,9 +208,9 @@ public static class AcceptanceCases
             ] = "symbol"
         );
         if (
-            new Consumer().Run([]) != 2
-            || new Consumer().Run(["absent", "absent"]) != 2
-            || new Consumer().Run([directory, reportPath]) != 2
+            consume([]) != 2
+            || consume(["absent", "absent"]) != 2
+            || consume([directory, reportPath]) != 2
         )
             throw new InvalidOperationException("argument/file rejection failed");
         Console.WriteLine(

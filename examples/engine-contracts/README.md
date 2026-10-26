@@ -47,9 +47,10 @@ drivers are omitted. The empty compiler marker is checked against its exact decl
 before classifying executable sources; added behavior fails. Missing instrumentation and
 unknown sources fail.
 
-These checks currently cover Linux x86_64, Godot .NET 4.6.3, and SDK 10.0.203. The .NET
-console is not a Unity Editor, Mono, or IL2CPP integration. No GDExtension or Bevy
-support is established by this fixture.
+These checks currently cover Linux x86_64, Godot .NET 4.6.3, and SDK 10.0.203. The
+optional [Unity consumer](../unity-harbour/README.md) has a separate installed-Editor
+and player gate; the .NET console alone does not establish Unity support. No GDExtension
+or Bevy support is established by this fixture.
 
 The Rust-only Recite prerequisite is runnable with:
 
@@ -73,6 +74,9 @@ A precompiled deployment needs `Harbour.dll` and the runtime assets selected for
 target. Build Shared with `-p:CopyLocalLockFileAssemblies=true` to materialize that
 candidate set: System.Text.Json, System.Text.Encodings.Web, System.IO.Pipelines,
 Microsoft.Bcl.AsyncInterfaces, and System.Runtime.CompilerServices.Unsafe. Package
-versions are locked. The .NET 10 consumers select their own framework-compatible
-assets; their tests do not execute that candidate closure under Unity. Editor import,
-assembly conflicts, Mono, IL2CPP, stripping, and player distribution remain untested.
+versions are locked. The .NET 10 consumers select their own framework-compatible assets;
+their tests do not execute that candidate closure under Unity. The separate Unity gate
+executes that candidate closure through Editor import and selected Linux players with
+high stripping for IL2CPP/Mono and a separate minimal-stripping CoreCLR probe. Existing
+projects with assembly conflicts and other platform distributions still require their
+own checks.
