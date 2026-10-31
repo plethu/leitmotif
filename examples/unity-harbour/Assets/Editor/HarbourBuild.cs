@@ -10,6 +10,20 @@ public static class HarbourBuild
 {
     public static void CheckEditor()
     {
+        // The runtime must come from the installed package, never from source references.
+        var package = UnityEditor.PackageManager.PackageInfo.FindForAssembly(
+            typeof(HarbourRunner).Assembly
+        );
+        var expected = Argument("-harbourPackageVersion");
+        if (
+            package == null
+            || package.name != "com.plethu.leitmotif.harbour"
+            || package.version != expected
+        )
+            throw new InvalidOperationException(
+                $"Expected installed package {expected}, found {package?.name}@{package?.version}"
+            );
+        Debug.Log($"Unity harbour package: {package.name}@{package.version} ({package.source})");
         var host = new GameObject("Harbour");
         try
         {

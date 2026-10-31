@@ -1,0 +1,9 @@
+{
+  "name": "com.plethu.leitmotif.harbour",
+  "displayName": "Leitmotif harbour consumer",
+  "version": "0.1.0-alpha.0",
+  "description": "Offline Leitmotif evidence consumer for the harbour example. Validates Rust-generated reports and replays them against Unity-owned managed state.",
+  "license": "MIT OR Apache-2.0",
+  "documentationUrl": "https://github.com/plethu/leitmotif/blob/main/examples/unity-harbour/README.md",
+  "unity": "2022.3"
+}

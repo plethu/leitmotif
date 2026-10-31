@@ -5,6 +5,9 @@ This optional Linux x86_64 example follows Recite's Unity version policy: Unity
 The installed verification pins are 6000.7.0b2 and 2022.3.62f3. A beta Editor test
 establishes behavior for that exact build, not future releases.
 
+Each row is the packaged lane below: installed tarball, upgrade from an older
+version, reimport after deleting `Library`, then the Editor suite and player.
+
 | Editor version | Linux x86_64 player | Verified stripping | Result |
 | --- | --- | --- | --- |
 | 6000.7.0b2 | IL2CPP (primary) | High | Editor and player suites passed |
@@ -21,17 +24,21 @@ UNITY_EDITOR="$HOME/Unity/Hub/Editor/6000.7.0b2/Editor/Unity" \
   mise exec -- just engine unity-check
 ```
 
-The command creates a clean temporary Unity project, generates four reports with the
-Rust example, restores locked managed dependencies, imports the .NET Standard 2.1
-artifacts, executes the Editor checks, and builds and runs a Linux standalone player
-with high managed stripping for IL2CPP/Mono and minimal stripping for the CoreCLR
-preview. Each component owns an independent `Consumer`; report
-snapshots are comparison evidence and never set live host state. All 30 state/action
-pairs (85 action attempts per audit), both endings, unreachable and inconclusive
-outcomes, and 62 adversarial cases run through the component. The player invokes the
-same suite from its scene's ordinary `Start` lifecycle and quits normally. The temporary
-project and player are removed on exit; Editor/build/player logs remain in
-`target/unity-IL2CPP`. Set `HARBOUR_UNITY_OUTPUT` to retain logs elsewhere.
+The command builds the package tarball, creates a clean temporary Unity project holding
+only the test driver, generates four reports with the Rust example, installs an older
+package version, then upgrades to the current one and checks that game-owned
+`Assets/` content and its `.meta` are unchanged. It deletes `Library` to force a
+reimport from the installed tarball, executes the Editor checks, and builds and runs a
+Linux standalone player with high managed stripping for IL2CPP/Mono and minimal
+stripping for the CoreCLR preview. Every Editor run asserts the runtime assembly comes
+from the installed package version. Each component owns an independent `Consumer`;
+report snapshots are comparison evidence and never set live host state. All 30
+state/action pairs (85 action attempts per audit), both endings, unreachable and
+inconclusive outcomes, and 62 adversarial cases run through the packaged component.
+The player invokes the same suite from its scene's ordinary `Start` lifecycle and quits
+normally. The temporary project and player are removed on exit; Editor/build/player
+logs remain in `target/unity-IL2CPP`. Set `HARBOUR_UNITY_OUTPUT` to retain logs
+elsewhere.
 
 For the other installed lanes, select an explicit backend:
 
@@ -52,24 +59,40 @@ backends and failed builds fail the check. Other operating systems, architecture
 WebGL, mobile players, and existing projects with conflicting JSON dependencies are
 untested.
 
-For an interactive walkthrough, copy this project to a writable directory. Build
-`examples/engine-contracts/tests/UnityManaged/Harbour.Acceptance.csproj` in Release
-and copy its `bin/Release/netstandard2.1/*.dll` into `Assets/Plugins`. Generate the
-four request/check pairs as in `scripts/unity-check.sh` and put them in
-`Assets/StreamingAssets`. Open the project in the selected Editor. Create a GameObject
-with `HarbourRunner` and `HarbourAcceptance` attached, then enter Play Mode. Inspect
-Console messages for conformance, rejected evidence, and divergence diagnostics
-with the original Rust source paths. The acceptance component is test-only; a game
-uses `HarbourRunner.Replay` with its request/report paths and handles status 0
-(reached), 1 (unreachable or divergence), or 2 (rejected or inconclusive).
+## Installing the package
+
+`mise exec -- just engine unity-package [ARCHIVE]` builds
+`target/leitmotif-harbour.tgz` without an Editor: the `HarbourRunner` component, the
+`Harbour` shared assembly, and its locked dependency closure (`System.Text.Json` and
+four support assemblies) with licenses and notices. Then from the repository root:
+
+```sh
+python -m scripts.unity_package install target/leitmotif-harbour.tgz path/to/game
+```
+
+This copies `Packages/leitmotif-harbour.tgz` and references it from
+`Packages/manifest.json`; rerunning with a newer tarball upgrades it. Nothing under
+`Assets/` is written. The command stops before writing anything if the game already
+contains a same-named precompiled assembly or asmdef (or an embedded copy of the
+package), and names each conflicting path. It does not remove or merge game content.
+
+For a walkthrough, install into a copy of this project, add `Assets/Plugins` with the
+test driver built from `examples/engine-contracts/tests/UnityManaged` (only
+`Harbour.Acceptance.dll`), generate the request/report pairs into
+`Assets/StreamingAssets` as `scripts/unity-check.sh` does, then attach `HarbourRunner`
+and `HarbourAcceptance` to a GameObject and enter Play Mode. A game calls
+`HarbourRunner.Replay` with its request/report paths and handles status 0 (reached), 1
+(unreachable or divergence), or 2 (rejected or inconclusive). `HarbourAcceptance` and
+`Harbour.Acceptance` are test-only and are not in the package.
 
 The agreed finite contract uses offline Rust analysis and precompiled managed
 validation/replay. This keeps the analyser, Rust native binaries, ABI ownership, and
 platform-specific allocation/deallocation rules outside the player. A native C ABI would
 only be justified by an in-process analysis requirement; it would need separate handle,
-buffer, callback, and distribution acceptance. The current scene is an executable
-contract fixture, not a general Unity package or authoring interface. It has no UPM
-release and is intentionally outside ordinary core builds and hosted CI. Unity's
+buffer, callback, and distribution acceptance. The package is an installable consumer of
+this one contract, not an authoring interface or a general integration with game-owned
+state. It has no registry release and is intentionally outside ordinary core builds and
+hosted CI. Unity's
 [managed plug-in guidance](https://docs.unity3d.com/6000.0/Documentation/Manual/plug-ins-managed.html)
 and
 [stripping preservation guidance](https://docs.unity3d.com/6000.0/Documentation/Manual/managed-code-stripping-preserving.html)
