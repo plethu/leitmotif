@@ -15,12 +15,8 @@ categories = ["game-development"]
 [dependencies]
 thiserror.workspace = true
 leitmotif = { path = "../../crates/leitmotif", version = "0.1.0-alpha.0" }
-bevy_app = { version = "=0.20.0-dev", git = "https://github.com/bevyengine/bevy", rev = "3a796854abd94144c6e08c4112e5bd9229392b37", default-features = false, features = [
-  "std",
-] }
-bevy_ecs = { version = "=0.20.0-dev", git = "https://github.com/bevyengine/bevy", rev = "3a796854abd94144c6e08c4112e5bd9229392b37", default-features = false, features = [
-  "std",
-] }
+bevy_app = { version = "0.20.1", default-features = false, features = ["std"] }
+bevy_ecs = { version = "0.20.1", default-features = false, features = ["std"] }
 
 [lints]
 workspace = true
