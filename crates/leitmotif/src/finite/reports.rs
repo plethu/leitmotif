@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 mod progression;
 pub use progression::{ProgressionConclusion, ProgressionReport};
@@ -119,7 +119,11 @@ pub struct TransitionInfo {
 }
 
 /// A full assignment keyed by stable fact IDs, in deterministic order.
-#[derive(Clone, Debug, PartialEq, Eq, Serialize)]
+///
+/// Its serialized form is a persisted save format; [`Model::restore`] reads it back.
+///
+/// [`Model::restore`]: crate::Model::restore
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Snapshot {
     /// Every fact, including settings.
     pub values: BTreeMap<String, Value>,

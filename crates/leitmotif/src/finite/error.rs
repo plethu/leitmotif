@@ -122,6 +122,19 @@ pub enum ErrorKind {
     /// Initial states require every fact exactly once.
     #[error("missing initial assignment for fact {0}")]
     MissingAssignment(String),
+    /// A restored snapshot must assign exactly the declared facts, within their domains.
+    /// Every list is sorted by fact key.
+    #[error(
+        "snapshot does not match the model: missing {missing:?}, unknown {unknown:?}, invalid {invalid:?}"
+    )]
+    SnapshotMismatch {
+        /// Declared facts, settings included, absent from the snapshot.
+        missing: Box<[String]>,
+        /// Snapshot keys that name no declared fact.
+        unknown: Box<[String]>,
+        /// Declared facts whose snapshot value is outside their domain.
+        invalid: Box<[(String, Value)]>,
+    },
     /// A state or transition assigned the same fact twice.
     #[error("duplicate assignment for fact {0}")]
     DuplicateWrite(String),

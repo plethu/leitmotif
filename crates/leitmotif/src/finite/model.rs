@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 use std::path::PathBuf;
 
 use serde::Serialize;
@@ -147,6 +147,56 @@ impl Model {
     pub fn snapshot(&self, state: &State) -> Result<Snapshot, Error> {
         self.validate_state(state)?;
         Ok(self.snapshot_values(&state.values))
+    }
+
+    /// Restores a state owned by this model from a snapshot, such as a host save.
+    ///
+    /// Compatibility is decided by fact keys and domains alone, not the model
+    /// fingerprint, so saves survive unrelated model edits. Migrate
+    /// `snapshot.values` before restoring when declarations change.
+    ///
+    /// # Errors
+    /// Returns one [`ErrorKind::SnapshotMismatch`] listing every missing fact,
+    /// unknown key and out-of-domain value. No unspecified value is defaulted.
+    #[track_caller]
+    pub fn restore(&self, snapshot: &Snapshot) -> Result<State, Error> {
+        let provenance = Source::caller();
+        let mut values = Vec::with_capacity(self.facts.len());
+        let mut missing = Vec::new();
+        let mut invalid = Vec::new();
+        for fact in &self.facts {
+            match snapshot.values.get(&fact.key) {
+                None => missing.push(fact.key.clone()),
+                Some(value) if !fact.domain.contains(value) => {
+                    invalid.push((fact.key.clone(), value.clone()));
+                }
+                Some(value) => values.push(value.clone()),
+            }
+        }
+        let matched = values.len().saturating_add(invalid.len());
+        if missing.is_empty() && invalid.is_empty() && snapshot.values.len() == matched {
+            return Ok(State {
+                owner: self.owner.clone(),
+                values,
+            });
+        }
+        let declared: BTreeSet<&str> = self.facts.iter().map(|fact| fact.key.as_str()).collect();
+        let unknown: Vec<String> = snapshot
+            .values
+            .keys()
+            .filter(|key| !declared.contains(key.as_str()))
+            .cloned()
+            .collect();
+        missing.sort_unstable();
+        invalid.sort_unstable();
+        Err(Error::new(
+            ErrorKind::SnapshotMismatch {
+                missing: missing.into(),
+                unknown: unknown.into(),
+                invalid: invalid.into(),
+            },
+            provenance,
+        ))
     }
 
     /// Evaluates a typed predicate on a checked state using the analysis evaluator.
