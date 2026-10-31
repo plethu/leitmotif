@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" role="img" aria-label="Leitmotif">
+  <title>Leitmotif</title>
+  <defs><filter id="grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="7"/><feColorMatrix values="0 0 0 0 0.25  0 0 0 0 0.18  0 0 0 0 0.2  0 0 0 .07 0"/></filter><clipPath id="tile"><rect width="1024" height="1024" rx="224"/></clipPath></defs>
+  <rect width="1024" height="1024" rx="224" fill="#f3e9df"/>
+  <rect width="1024" height="1024" rx="224" filter="url(#grain)" clip-path="url(#tile)"/>
+  <g transform="translate(276.5 794.7) scale(0.3678)"><g fill="#00838a" color="#00838a" transform="translate(40.0 40.0)"><path d="M240.4 -520.8 L480.8 -280.4 L240.4 -40.0 L0.0 -280.4 Z"/><path d="M1040.4 -680.8 L1280.8 -440.4 L1040.4 -200.0 L800.0 -440.4 Z"/><path d="M380.8 -1257.2 H480.8 V-280.4 H380.8 Z"/><path d="M1180.8 -1417.2 H1280.8 V-440.4 H1180.8 Z"/><path d="M380.8 -1337.2 L1280.8 -1497.2 V-1337.2 L380.8 -1177.2 Z"/></g><g fill="#683e62" color="#683e62"><path d="M240.4 -520.8 L480.8 -280.4 L240.4 -40.0 L0.0 -280.4 Z"/><path d="M1040.4 -680.8 L1280.8 -440.4 L1040.4 -200.0 L800.0 -440.4 Z"/><path d="M380.8 -1257.2 H480.8 V-280.4 H380.8 Z"/><path d="M1180.8 -1417.2 H1280.8 V-440.4 H1180.8 Z"/><path d="M380.8 -1337.2 L1280.8 -1497.2 V-1337.2 L380.8 -1177.2 Z"/></g></g>
+</svg>
