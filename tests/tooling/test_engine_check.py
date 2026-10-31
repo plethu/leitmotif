@@ -160,6 +160,28 @@ class EngineCheckTests(unittest.TestCase):
             ):
                 engine_check.run(["godot"], **options)
 
+    def test_only_the_known_startup_noise_is_tolerated(self):
+        noise = engine_check.GODOT_STARTUP_NOISE[0]
+        other = noise.replace("android_sdk_path", "java_sdk_path")
+        for stderr, passes in [
+            (f"{noise}\n   at: _EDITOR_GET (editor_settings.cpp:1531)\n", True),
+            (f"{noise}\nERROR: lifecycle failed\n", False),
+            (f"{other}\n", False),
+        ]:
+            with (
+                self.subTest(stderr=stderr),
+                patch.object(
+                    subprocess,
+                    "run",
+                    return_value=subprocess.CompletedProcess([], 0, "", stderr),
+                ),
+            ):
+                if passes:
+                    engine_check.run(["godot"], normal_godot=True)
+                else:
+                    with self.assertRaisesRegex(ValueError, "unexpected Godot error"):
+                        engine_check.run(["godot"], normal_godot=True)
+
     def test_sdk_selector_matches_mise_and_disables_roll_forward(self):
         mise = tomllib.loads((engine_check.ROOT / ".mise.toml").read_text())
         sdk = json.loads((engine_check.ROOT / "global.json").read_text())["sdk"]
