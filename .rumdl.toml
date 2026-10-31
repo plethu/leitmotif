@@ -4,3 +4,10 @@ exclude = ["target", ".agents", ".codex", "docs/architecture-preview"]
 
 [MD013]
 reflow = true
+
+# The README opens with the logo, as a light/dark <picture>, instead of a heading.
+[MD033]
+allowed-elements = ["picture", "source", "img"]
+
+[per-file-ignores]
+"README.md" = ["MD041"]
