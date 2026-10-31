@@ -32,6 +32,12 @@
       "matchDepNames": ["rust"],
       "enabled": false,
       "description": "Update the Rust toolchain and Cargo rust-version together in a reviewed change."
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "matchDepTypes": ["github-runner"],
+      "enabled": false,
+      "description": "Hold the runner image until actionlint recognises the new label; its workflow lint rejects ubuntu-26.04."
     }
   ]
 }
