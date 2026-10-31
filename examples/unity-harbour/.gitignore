@@ -1,0 +1,9 @@
+/Library/
+/Logs/
+/Temp/
+/obj/
+/UserSettings/
+/Assets/Plugins/
+/Assets/StreamingAssets/
+/Assets/Harbour.unity*
+*.meta

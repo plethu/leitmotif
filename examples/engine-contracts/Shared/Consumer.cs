@@ -8,7 +8,15 @@ public sealed class Consumer
     private readonly HarbourState initial = new(Ending.Open, true, false, false, false, false);
     private readonly ContractChecks host;
 
-    public Consumer() => host = new(initial);
+    private readonly Action<string> output;
+    private readonly Action<string> error;
+
+    public Consumer(Action<string>? output = null, Action<string>? error = null)
+    {
+        host = new(initial);
+        this.output = output ?? Console.WriteLine;
+        this.error = error ?? Console.Error.WriteLine;
+    }
 
     public int Run(string[] args)
     {
@@ -19,14 +27,14 @@ public sealed class Consumer
             using var result = JsonDocument.Parse(File.ReadAllText(args[1]));
             var evidence = Evidence.Decode(request.RootElement, result.RootElement, initial);
             var status = host.Check(evidence);
-            Console.WriteLine(
+            output(
                 $"Harbour conformance: {evidence.Cases.Length} cases; {evidence.Query}: {evidence.Verdict.ToString().ToLowerInvariant()} (status {status})"
             );
             return status;
         }
         catch (HostDifference error)
         {
-            Console.Error.WriteLine($"Harbour conformance failure: {error.Message}");
+            this.error($"Harbour conformance failure: {error.Message}");
             return 1;
         }
         catch (Exception error)
@@ -41,7 +49,7 @@ public sealed class Consumer
                         or OverflowException
             )
         {
-            Console.Error.WriteLine($"Rejected harbour evidence: {error.Message}");
+            this.error($"Rejected harbour evidence: {error.Message}");
             return 2;
         }
     }
