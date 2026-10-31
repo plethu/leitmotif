@@ -62,9 +62,14 @@ aliases for absolute paths under an explicit root. Absolute paths outside that
 root retain their originals without a relative alias. Locations do not affect
 the model fingerprint, so relocating a checkout does not change model identity.
 
-The report format remains experimental, with no stable persistence promise or
-state deserialization API. Inconsistency reports the supplied premise set, not a
-minimized unsatisfiable core.
+The report format remains experimental, with no stable persistence promise.
+Inconsistency reports the supplied premise set, not a minimized unsatisfiable core.
+
+A snapshot is the exception: its JSON form is a save format. `Model::restore`
+turns a snapshot back into a state for the same declarations, in this process or a
+later one. It checks fact keys and domains, not the fingerprint, and reports every
+missing, unknown and out-of-domain fact in one `SnapshotMismatch`. When declarations
+change, migrate `snapshot.values` before restoring.
 
 ## Exit codes
 
