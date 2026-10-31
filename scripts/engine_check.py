@@ -12,6 +12,12 @@ from scripts.engine_coverage import check
 
 ROOT = Path(__file__).resolve().parents[1]
 CONSUMERS = ROOT / "examples/engine-contracts"
+# Engine startup reads this setting before EditorSettings exists. Godot reports the same
+# message for other settings during doctool/glue runs (godotengine/godot#91510, #104166,
+# #105991, #120467); it was seen once here in --editor mode and not on rerun.
+GODOT_STARTUP_NOISE = (
+    'ERROR: EditorSettings not instantiated yet when getting setting "export/android/android_sdk_path".',
+)
 
 
 def run(command, expected=0, *, output=None, completion=None, normal_godot=False):
@@ -25,7 +31,10 @@ def run(command, expected=0, *, output=None, completion=None, normal_godot=False
         timeout=120,
     )
     print(result.stderr, end="", file=sys.stderr)
-    if normal_godot and "ERROR:" in result.stdout + result.stderr:
+    if normal_godot and any(
+        "ERROR:" in line and line.strip() not in GODOT_STARTUP_NOISE
+        for line in (result.stdout + result.stderr).splitlines()
+    ):
         raise ValueError("unexpected Godot error during normal lifecycle")
     if completion and completion not in result.stdout:
         raise ValueError("missing host conformance completion marker")
