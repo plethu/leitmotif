@@ -26,3 +26,5 @@ mise.local.toml
 .agents/local/
 .agents/private/
 .agents/tmp/
+/examples/unity-harbour/Package/Dependencies/bin/
+/examples/unity-harbour/Package/Dependencies/obj/

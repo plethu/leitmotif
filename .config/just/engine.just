@@ -20,8 +20,13 @@ check: fmt-check
     cargo build --locked -p leitmotif --example engine-contracts
     python -m scripts.engine_check --binary "${CARGO_TARGET_DIR:-target}/debug/examples/engine-contracts"
 
+# Build the installable Unity package tarball; no Editor is needed.
+unity-package archive="target/leitmotif-harbour.tgz":
+    shellcheck scripts/unity-package.sh
+    bash scripts/unity-package.sh "{{ archive }}"
+
 # Optional installed Unity Editor and Linux player, separate from ordinary gates.
 unity-check:
-    shellcheck scripts/unity-check.sh
+    shellcheck scripts/unity-check.sh scripts/unity-package.sh
     csharpier check examples/unity-harbour
     bash scripts/unity-check.sh
