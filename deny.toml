@@ -7,6 +7,10 @@ version = 2
 [bans]
 multiple-versions = "deny"
 wildcards = "deny"
+skip = [
+  { crate = "syn@2.0.119", reason = "Bevy 0.20.1's proc macros use syn 2 while clap_derive uses syn 3" },
+  { crate = "hashbrown@0.16.1", reason = "bevy_platform 0.20.1 requires 0.16 while indexmap uses 0.17" },
+]
 
 [licenses]
 version = 2
@@ -62,11 +66,7 @@ allow = ["MPL-2.0"]
 unknown-registry = "deny"
 unknown-git = "deny"
 allow-registry = ["https://github.com/rust-lang/crates.io-index"]
-allow-git = [
-  "https://github.com/plethu/recite",
-  "https://github.com/bevyengine/bevy",
-  "https://github.com/JelteF/derive_more",
-]
+allow-git = ["https://github.com/plethu/recite"]
 
 [[licenses.exceptions]]
 name = "foldhash"
