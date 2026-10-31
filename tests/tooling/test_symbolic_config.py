@@ -19,7 +19,7 @@ class SymbolicConfigurationTests(unittest.TestCase):
         self.assertNotIn("symbolic-experiment", core["features"])
         self.assertNotIn("oxidd", core["dependencies"])
         self.assertEqual(set(leaf["patch"]["crates-io"]), {"oxidd-derive"})
-        self.assertNotIn("oxidd-derive", root["patch"]["crates-io"])
+        self.assertNotIn("oxidd-derive", root.get("patch", {}).get("crates-io", {}))
         core_lock = tomllib.loads((ROOT / "Cargo.lock").read_text())
         leaf_lock = tomllib.loads((EXPERIMENT / "Cargo.lock").read_text())
         self.assertFalse(
@@ -34,8 +34,13 @@ class SymbolicConfigurationTests(unittest.TestCase):
     ):
         root = tomllib.loads((ROOT / "deny.toml").read_text())
         leaf = tomllib.loads((EXPERIMENT / "deny.toml").read_text())
-        for section in ["graph", "advisories", "bans"]:
+        for section in ["graph", "advisories"]:
             self.assertEqual(leaf[section], root[section])
+        # The root's skips excuse duplicates in its own (Bevy) graph, not this one.
+        self.assertNotIn("skip", leaf["bans"])
+        self.assertEqual(
+            leaf["bans"], {k: v for k, v in root["bans"].items() if k != "skip"}
+        )
         leaf_licenses = leaf["licenses"].copy()
         self.assertEqual(
             leaf_licenses.pop("exceptions"),
