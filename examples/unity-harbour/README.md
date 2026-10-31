@@ -5,9 +5,8 @@ This optional Linux x86_64 example follows Recite's Unity version policy: Unity
 The installed verification pins are 6000.7.0b2 and 2022.3.62f3. A beta Editor test
 establishes behavior for that exact build, not future releases.
 
-The rows below come from the earlier source-copy lane. The packaged lane described
-next has not yet been run in an Editor, so they are not yet evidence for the installed
-package.
+Each row is the packaged lane below: installed tarball, upgrade from an older
+version, reimport after deleting `Library`, then the Editor suite and player.
 
 | Editor version | Linux x86_64 player | Verified stripping | Result |
 | --- | --- | --- | --- |

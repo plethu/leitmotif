@@ -3,7 +3,6 @@ using System.IO;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
-using UnityEditor.PackageManager;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
@@ -12,7 +11,9 @@ public static class HarbourBuild
     public static void CheckEditor()
     {
         // The runtime must come from the installed package, never from source references.
-        var package = PackageInfo.FindForAssembly(typeof(HarbourRunner).Assembly);
+        var package = UnityEditor.PackageManager.PackageInfo.FindForAssembly(
+            typeof(HarbourRunner).Assembly
+        );
         var expected = Argument("-harbourPackageVersion");
         if (
             package == null
