@@ -1,37 +1,69 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
-  "enabledManagers": ["cargo", "mise", "github-actions"],
-  "ignorePaths": ["**/target/**", "docs/architecture-preview/**"],
+  "extends": [
+    "config:recommended"
+  ],
+  "enabledManagers": [
+    "cargo",
+    "mise",
+    "github-actions"
+  ],
+  "ignorePaths": [
+    "**/target/**",
+    "docs/architecture-preview/**"
+  ],
   "dependencyDashboard": true,
   "prConcurrentLimit": 1,
   "branchConcurrentLimit": 1,
   "prHourlyLimit": 1,
   "timezone": "Europe/London",
-  "schedule": ["* 0-5 * * 1"],
+  "schedule": [
+    "* 0-5 * * 1"
+  ],
   "minimumReleaseAge": "7 days",
   "automerge": false,
   "branchPrefix": "chore/",
   "branchNameStrict": true,
   "packageRules": [
     {
-      "matchManagers": ["cargo"],
+      "matchManagers": [
+        "cargo"
+      ],
       "groupName": "Rust dependencies"
     },
     {
-      "matchManagers": ["mise", "github-actions"],
+      "matchManagers": [
+        "mise",
+        "github-actions"
+      ],
       "groupName": "development tools",
       "pinDigests": true
     },
     {
-      "matchUpdateTypes": ["major"],
+      "matchUpdateTypes": [
+        "major"
+      ],
       "dependencyDashboardApproval": true
     },
     {
-      "matchManagers": ["mise"],
-      "matchDepNames": ["rust"],
+      "matchManagers": [
+        "mise"
+      ],
+      "matchDepNames": [
+        "rust"
+      ],
       "enabled": false,
       "description": "Update the Rust toolchain and Cargo rust-version together in a reviewed change."
+    },
+    {
+      "matchManagers": [
+        "github-actions"
+      ],
+      "matchDepTypes": [
+        "github-runner"
+      ],
+      "enabled": false,
+      "description": "Hold the runner image until actionlint recognises the new label; its workflow lint rejects ubuntu-26.04."
     }
   ]
 }
