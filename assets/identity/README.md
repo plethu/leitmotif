@@ -11,8 +11,7 @@ MIT OR Apache-2.0 license.
 - `leitmotif-wordmark.svg`: the quiet wordmark for the README and docs. Letters are
   plum; one link is plum and the other teal.
 - `leitmotif-wordmark-reversed.svg`: the same on dark surfaces. Letters and one link are
-  warm paper, the other link mint, and the crossings are a bright screened tone, since
-  light inks add where dark inks multiply.
+  warm paper, the other link mint, and the crossings keep the overprint ink.
 - `leitmotif-mark.svg`: the two links alone on a grained paper tile, for avatars and
   other square formats.
 - `leitmotif-social.svg` and `leitmotif-social.png`: the 1280 by 640 social preview.
