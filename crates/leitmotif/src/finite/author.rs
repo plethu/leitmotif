@@ -1,8 +1,5 @@
+use std::collections::{BTreeMap, BTreeSet};
 use std::path::PathBuf;
-use std::{
-    collections::{BTreeMap, BTreeSet},
-    marker::PhantomData,
-};
 
 use super::{
     Assignment, Domain, Error, ErrorKind, Fact, FactHandle, FactInfo, Model, Predicate, Source,
@@ -146,10 +143,11 @@ impl ModelBuilder {
                 provenance,
             ));
         }
+        let values = F::Value::values();
         let mut seen = BTreeSet::new();
-        let mut domain = Vec::new();
-        for value in F::Value::values() {
-            let encoded = value.encode();
+        let mut domain = Vec::with_capacity(values.len());
+        for value in &values {
+            let encoded = value.clone().encode();
             let reason = match &encoded {
                 Value::Symbol(symbol) if symbol.trim().is_empty() => {
                     Some("empty symbolic encoding")
@@ -187,7 +185,7 @@ impl ModelBuilder {
         Ok(FactHandle {
             owner: self.owner.clone(),
             index,
-            marker: PhantomData,
+            values: values.into(),
         })
     }
 

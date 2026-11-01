@@ -1,11 +1,12 @@
 use std::collections::{BTreeMap, BTreeSet};
+use std::panic::Location;
 use std::path::PathBuf;
 
 use serde::Serialize;
 
 use super::{
-    Assignment, Error, ErrorKind, FactKind, ModelBuilder, NamedPredicate, Predicate, Snapshot,
-    Source, TransitionInfo, Value,
+    Assignment, Error, ErrorKind, Fact, FactHandle, FactKind, ModelBuilder, NamedPredicate,
+    Predicate, Snapshot, Source, TransitionInfo, Value,
     author::unique_name,
     compile::{CompiledInvariant, CompiledTransition, describe},
     predicate::Identity,
@@ -197,6 +198,36 @@ impl Model {
             },
             provenance,
         ))
+    }
+
+    /// Reads one fact's typed value from a checked state.
+    ///
+    /// A read does not allocate beyond cloning the returned value.
+    ///
+    /// # Errors
+    /// Rejects foreign states and foreign handles.
+    #[track_caller]
+    pub fn get<F: Fact>(&self, state: &State, fact: &FactHandle<F>) -> Result<F::Value, Error> {
+        self.validate_state(state)?;
+        let location = Location::caller();
+        if !self.owner.matches(&fact.owner) {
+            return Err(Error::new(
+                ErrorKind::ForeignHandle(F::KEY.to_owned()),
+                Source::at(location),
+            ));
+        }
+        let decoded = self
+            .facts
+            .get(fact.index)
+            .zip(state.values.get(fact.index))
+            .and_then(|(info, value)| info.domain.iter().position(|encoded| encoded == value))
+            .and_then(|position| fact.values.get(position));
+        decoded.cloned().ok_or_else(|| {
+            Error::new(
+                ErrorKind::InvalidModel("undeclared state value"),
+                Source::at(location),
+            )
+        })
     }
 
     /// Evaluates a typed predicate on a checked state using the analysis evaluator.

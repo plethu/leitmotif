@@ -1,4 +1,4 @@
-use std::{fmt, marker::PhantomData, sync::Arc};
+use std::{fmt, sync::Arc};
 
 use super::{Domain, Fact, Source, Value};
 
@@ -19,7 +19,10 @@ impl Identity {
 pub struct FactHandle<F: Fact> {
     pub(super) owner: Identity,
     pub(super) index: usize,
-    pub(super) marker: PhantomData<fn() -> F>,
+    /// The registered domain, positionally aligned with [`FactInfo::domain`].
+    ///
+    /// [`FactInfo::domain`]: super::FactInfo::domain
+    pub(super) values: Arc<[F::Value]>,
 }
 
 impl<F: Fact> fmt::Debug for FactHandle<F> {
@@ -37,7 +40,7 @@ impl<F: Fact> Clone for FactHandle<F> {
         Self {
             owner: self.owner.clone(),
             index: self.index,
-            marker: PhantomData,
+            values: Arc::clone(&self.values),
         }
     }
 }

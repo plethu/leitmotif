@@ -25,6 +25,7 @@ base16ct.workspace = true
 rsmt2 = { workspace = true, optional = true }
 
 [dev-dependencies]
+allocation-counter.workspace = true
 clap = { workspace = true, features = ["wrap_help"] }
 
 [lints]

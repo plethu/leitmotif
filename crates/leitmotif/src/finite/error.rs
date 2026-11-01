@@ -32,7 +32,12 @@ impl Source {
 
     #[track_caller]
     pub(super) fn caller() -> Self {
-        let location = Location::caller();
+        Self::at(Location::caller())
+    }
+
+    /// Builds provenance from a location captured earlier, for error paths inside
+    /// closures, where `#[track_caller]` does not propagate.
+    pub(super) fn at(location: &Location<'_>) -> Self {
         Self {
             file: location.file().to_owned(),
             portable_file: (!Path::new(location.file()).is_absolute())
