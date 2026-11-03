@@ -60,8 +60,8 @@ impl Route {
     }
     const fn choice(self) -> &'static str {
         match self {
-            Self::Ferry => "10000000000000000003",
-            Self::Beacon | Self::Stale => "10000000000000000002",
+            Self::Ferry => "ferry",
+            Self::Beacon | Self::Stale => "beacon",
         }
     }
 }

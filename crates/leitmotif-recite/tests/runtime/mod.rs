@@ -31,8 +31,8 @@ fn compiled_boolean_guards_match_runtime_and_preserve_typed_arguments() {
     let asset = compile(concat!(
         ":: start default\n",
         ":if ready(player, 3, 0.5, true) and not ready(\"player\", 3, 0.5, true) or fallback()\n",
-        "  > yes@8843fd6f53f020a12b31\n    Yes.\n",
-        ":else\n  > no@4dff358182d02d9090e3\n    No.\n",
+        "  > @yes\n    Yes.\n",
+        ":else\n  > @no\n    No.\n",
         "-> END\n"
     ))
     .unwrap();
@@ -119,7 +119,7 @@ fn compiled_boolean_guards_match_runtime_and_preserve_typed_arguments() {
 
 #[test]
 fn compiled_enum_scrutinee_matches_runtime_variants() {
-    let asset = compile(":: start default\n:match mood()\n  :case tired\n    > tired@8843fd6f53f020a12b31\n      Tired.\n  :case _\n    > rested@4dff358182d02d9090e3\n      Rested.\n-> END\n").unwrap();
+    let asset = compile(":: start default\n:match mood()\n  :case tired\n    > @tired\n      Tired.\n  :case _\n    > @rested\n      Rested.\n-> END\n").unwrap();
     let statement = asset
         .statements
         .iter()
@@ -182,7 +182,7 @@ fn compiled_enum_scrutinee_matches_runtime_variants() {
 
 #[test]
 fn choice_availability_is_captured_before_the_host_snapshot_changes() {
-    let asset = compile(":: start default\n> prompt@8843fd6f53f020a12b31\n  What next?\n  ? enter@4dff358182d02d9090e3 requires=(ready())\n    Enter.\n    -> END\n").unwrap();
+    let asset = compile(":: start default\n> @prompt\n  What next?\n  ? requires=(ready()) @enter\n    Enter.\n    -> END\n").unwrap();
     let choice = asset.choices.first().unwrap();
     let span = &asset
         .source_maps
@@ -241,7 +241,7 @@ fn mixed_deep_and_wide_compiled_guards_fail_explicitly_on_a_worker_stack() {
             let siblings = if level % 2 == 0 { " and ready()" } else { " or ready()" };
             expression = format!("({expression}){}", siblings.repeat(16));
         }
-        let source = format!(":: start default\n:if {expression}\n  > yes@8843fd6f53f020a12b31\n    Yes.\n:else\n  > no@4dff358182d02d9090e3\n    No.\n-> END\n");
+        let source = format!(":: start default\n:if {expression}\n  > @yes\n    Yes.\n:else\n  > @no\n    No.\n-> END\n");
         let asset = compile(&source).unwrap();
         let statement = asset.statements.iter().find(|row| matches!(row.kind, CompiledStatementKind::If { .. })).unwrap();
         let CompiledStatementKind::If { condition, .. } = &statement.kind else { panic!("missing if") };

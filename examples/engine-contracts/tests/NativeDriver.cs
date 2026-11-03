@@ -274,9 +274,9 @@ public partial class NativeDriver : Node
         foreach (
             var (route, ending, actions, boundaries, line) in new[]
             {
-                ("beacon", "sheltered", 3, 7, "10000000000000000005"),
-                ("ferry", "departed", 3, 7, "10000000000000000006"),
-                ("stale", "open", 2, 6, "10000000000000000004"),
+                ("beacon", "sheltered", 3, 7, "sheltered"),
+                ("ferry", "departed", 3, 7, "departed"),
+                ("stale", "open", 2, 6, "open"),
             }
         )
         {
@@ -296,7 +296,7 @@ public partial class NativeDriver : Node
                 "incorrect blocking acknowledgement"
             );
             Require(
-                dialogue["selected_lines"].AsString() == "10000000000000000001," + line,
+                dialogue["selected_lines"].AsString() == "decision," + line,
                 "wrong selected dialogue lines"
             );
             var trace = dialogue["trace"].AsGodotArray();

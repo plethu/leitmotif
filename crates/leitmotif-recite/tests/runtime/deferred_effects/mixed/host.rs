@@ -15,9 +15,9 @@ pub(super) const STORY: &str = concat!(
     "! immediate cue(\"bell\")\n",
     ":if ready()\n  ! deferred impossible()\n",
     ":else\n  ! deferred record_else()\n",
-    "> prompt@8843fd6f53f020a12b31\n  Continue?\n",
-    "  ? continue@4dff358182d02d9090e3 requires=(not ready())\n    Continue.\n    -> finish\n",
-    "  ? abandon@a179e0df75e958fa949b\n    Abandon.\n    -> abandon\n",
+    "> @prompt\n  Continue?\n",
+    "  ? requires=(not ready()) @continue\n    Continue.\n    -> finish\n",
+    "  ? @abandon\n    Abandon.\n    -> abandon\n",
     ":: finish\n! deferred finish()\n-> END\n",
     ":: abandon\n! deferred abandoned()\n-> END\n",
 );

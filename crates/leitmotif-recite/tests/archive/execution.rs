@@ -36,9 +36,7 @@ fn invalid_actions_and_unmapped_effects_are_not_recovered_as_host_denial() {
         .actions(&node)
         .unwrap()
         .into_iter()
-        .find(
-            |action| matches!(action, Action::Choose(id) if id.as_str() == "baa4233d710cc23fd277"),
-        )
+        .find(|action| matches!(action, Action::Choose(id) if id.as_str() == "unlock"))
         .unwrap();
     execution.step(&mut node, &choice).unwrap();
     execution.blocking = BlockingEffects::new(&scenario.model);
