@@ -36,8 +36,8 @@ fn demonstrate(scenario: &Scenario, route: Route) -> RunResult<Execution<'_>> {
     execution.step(Operation::Immediate)?;
     execution.step(Operation::Next)?;
     let choice = execution.choice(match route {
-        Route::Ferry => "10000000000000000003",
-        Route::Beacon | Route::CapturedBeaconAfterFuel => "10000000000000000002",
+        Route::Ferry => "ferry",
+        Route::Beacon | Route::CapturedBeaconAfterFuel => "beacon",
     })?;
     if matches!(route, Route::CapturedBeaconAfterFuel) {
         execution.step(Operation::FuelFerry)?;

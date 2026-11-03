@@ -46,7 +46,7 @@ pub(super) fn explore(
         property: super::model::PROPERTY,
         schema_version: leitmotif::EXPERIMENTAL_SCHEMA_VERSION,
         tool_version: env!("CARGO_PKG_VERSION"),
-        recite_revision: "6ddf13bb944dc7b1f0528654a2e70e243e54bb6f",
+        recite_revision: "190d3a1d041b2509f3b3f7f6a47691a5ca6c9638",
         model_id: scenario.model.fingerprint().into(),
         initial: scenario.model.snapshot(&root.host)?,
         protocol: PROTOCOL,
@@ -144,7 +144,7 @@ pub(super) fn show_opened_continuation(
     let mut node = replay_node(scenario, initial, witness)?;
     execution.step(&mut node, &Action::Acknowledge)?;
     execution.step(&mut node, &Action::Next)?;
-    let opened = matches!(node.trace.last().map(|boundary| &boundary.outcome), Some(Outcome::Delivered(DialogueEvent::Line(line))) if line.id.as_str() == "4dff358182d02d9090e3");
+    let opened = matches!(node.trace.last().map(|boundary| &boundary.outcome), Some(Outcome::Delivered(DialogueEvent::Line(line))) if line.id.as_str() == "opened");
     if !opened || !scenario.violation(&node.host)? {
         return Err("runtime continuation did not preserve the witnessed opening violation".into());
     }

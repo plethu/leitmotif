@@ -198,9 +198,9 @@ fn complete_paths_preserve_claim_settings_and_reached_deferred_order_at_each_bou
         );
         let access = completed.host.values.get("archive.access").unwrap();
         let expected_line = match access {
-            Value::Symbol(value) if value == "closed" => "4cc0a18fca48337278d1",
-            Value::Symbol(value) if value == "opened" => "4dff358182d02d9090e3",
-            Value::Symbol(value) if value == "denied" => "ebb571c54e9fa639e36f",
+            Value::Symbol(value) if value == "closed" => "closed",
+            Value::Symbol(value) if value == "opened" => "opened",
+            Value::Symbol(value) if value == "denied" => "denied",
             _ => panic!("invalid access state"),
         };
         assert_eq!(
@@ -209,7 +209,7 @@ fn complete_paths_preserve_claim_settings_and_reached_deferred_order_at_each_bou
                 .iter()
                 .map(recite_core::LineId::as_str)
                 .collect::<Vec<_>>(),
-            ["a90e86884f3aa3bf3ab7", expected_line]
+            ["claim", expected_line]
         );
         let Value::Symbol(access) = access else {
             panic!("access is symbolic")
@@ -282,10 +282,7 @@ fn direct_host_denial_with_a_present_key_selects_only_denied_output_and_result()
         completed.host.values.get("archive.result_recorded"),
         Some(&Value::Symbol("denied".into()))
     );
-    assert_eq!(
-        completed.selected_lines.last().unwrap().as_str(),
-        "ebb571c54e9fa639e36f"
-    );
+    assert_eq!(completed.selected_lines.last().unwrap().as_str(), "denied");
 }
 
 #[test]

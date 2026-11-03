@@ -18,7 +18,7 @@ pub fn write(output: &Path) -> Result<()> {
     for (name, text) in [
         ("wrong-effect-argument", source::TEXT.replace("share_warning(keeper)", "share_warning(ferryman)")),
         ("wrong-effect-mode", source::TEXT.replace("! immediate share_warning(keeper)", "! blocking share_warning(keeper)")),
-        ("missing-choice", source::TEXT.replace("10000000000000000002", "10000000000000000012")),
+        ("missing-choice", source::TEXT.replace("@beacon", "@beacon_missing")),
         ("no-blocking", source::TEXT.replace("    -> beacon", "    -> result")),
         ("wrong-delivery", source::TEXT.replace("    -> beacon", "    -> harbour")),
         ("unexpected-blocking", source::TEXT.replace("! immediate share_warning(keeper)", "-> beacon")),

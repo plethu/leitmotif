@@ -1124,7 +1124,7 @@ checksum = "20675572f6f24e9e76ef639bc5552774ed45f1c30e2951e1e99c59888861c539"
 [[package]]
 name = "recite-compiler"
 version = "0.1.0"
-source = "git+https://github.com/plethu/recite?rev=6ddf13bb944dc7b1f0528654a2e70e243e54bb6f#6ddf13bb944dc7b1f0528654a2e70e243e54bb6f"
+source = "git+https://github.com/plethu/recite?rev=190d3a1d041b2509f3b3f7f6a47691a5ca6c9638#190d3a1d041b2509f3b3f7f6a47691a5ca6c9638"
 dependencies = [
  "language-tags",
  "recite-core",
@@ -1138,7 +1138,7 @@ dependencies = [
 [[package]]
 name = "recite-core"
 version = "0.1.0"
-source = "git+https://github.com/plethu/recite?rev=6ddf13bb944dc7b1f0528654a2e70e243e54bb6f#6ddf13bb944dc7b1f0528654a2e70e243e54bb6f"
+source = "git+https://github.com/plethu/recite?rev=190d3a1d041b2509f3b3f7f6a47691a5ca6c9638#190d3a1d041b2509f3b3f7f6a47691a5ca6c9638"
 dependencies = [
  "atomic-write-file",
  "blake3",
@@ -1158,7 +1158,7 @@ dependencies = [
 [[package]]
 name = "recite-parser"
 version = "0.1.0"
-source = "git+https://github.com/plethu/recite?rev=6ddf13bb944dc7b1f0528654a2e70e243e54bb6f#6ddf13bb944dc7b1f0528654a2e70e243e54bb6f"
+source = "git+https://github.com/plethu/recite?rev=190d3a1d041b2509f3b3f7f6a47691a5ca6c9638#190d3a1d041b2509f3b3f7f6a47691a5ca6c9638"
 dependencies = [
  "recite-core",
  "rowan",
@@ -1167,7 +1167,7 @@ dependencies = [
 [[package]]
 name = "recite-runtime"
 version = "0.1.0"
-source = "git+https://github.com/plethu/recite?rev=6ddf13bb944dc7b1f0528654a2e70e243e54bb6f#6ddf13bb944dc7b1f0528654a2e70e243e54bb6f"
+source = "git+https://github.com/plethu/recite?rev=190d3a1d041b2509f3b3f7f6a47691a5ca6c9638#190d3a1d041b2509f3b3f7f6a47691a5ca6c9638"
 dependencies = [
  "memchr",
  "recite-core",

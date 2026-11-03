@@ -16,16 +16,8 @@ fn compiled_dialogue_uses_the_five_existing_host_actions() {
 fn ordinary_routes_reach_both_existing_endings_through_real_runtime() {
     let scenario = Scenario::new().unwrap();
     for (route, target, line) in [
-        (
-            Route::Beacon,
-            &scenario.town.sheltered,
-            "10000000000000000005",
-        ),
-        (
-            Route::Ferry,
-            &scenario.town.departed,
-            "10000000000000000006",
-        ),
+        (Route::Beacon, &scenario.town.sheltered, "sheltered"),
+        (Route::Ferry, &scenario.town.departed, "departed"),
     ] {
         let execution = demonstrate(&scenario, route).unwrap();
         assert!(execution.ended());
@@ -53,7 +45,7 @@ fn ordinary_routes_reach_both_existing_endings_through_real_runtime() {
                 .iter()
                 .map(LineId::as_str)
                 .collect::<Vec<_>>(),
-            ["10000000000000000001", line]
+            ["decision", line]
         );
         assert!(final_boundary.pending.is_none());
         assert!(
@@ -138,7 +130,7 @@ fn captured_beacon_choice_rechecks_oil_and_failed_ack_never_shelters() {
             .iter()
             .map(LineId::as_str)
             .collect::<Vec<_>>(),
-        ["10000000000000000001", "10000000000000000004"]
+        ["decision", "open"]
     );
     assert!(
         execution
@@ -327,7 +319,7 @@ fn disabled_protocol_operations_do_not_write_host_state() {
     }
     assert!(execution.choice("unknown").is_err());
     assert!(execution.step(Operation::Next).is_err());
-    let choice = execution.choice("10000000000000000002").unwrap();
+    let choice = execution.choice("beacon").unwrap();
     execution.step(Operation::Choose(choice)).unwrap();
     assert!(execution.step(Operation::Acknowledge).is_err());
     execution.step(Operation::Blocking).unwrap();
@@ -472,7 +464,7 @@ fn repeated_pending_traversal_is_explicitly_bounded_without_host_mutation() {
     for operation in [Operation::Next, Operation::Immediate, Operation::Next] {
         execution.step(operation).unwrap();
     }
-    let choice = execution.choice("10000000000000000002").unwrap();
+    let choice = execution.choice("beacon").unwrap();
     execution.step(Operation::Choose(choice)).unwrap();
     let unchanged = scenario.town.model.snapshot(&execution.host).unwrap();
     for _ in execution.trace.len()..24 {
@@ -514,10 +506,7 @@ fn authored_continuation_changes_cannot_pass_the_scripted_route_contract() {
             "harbour runtime reached an unexpected ending",
         ),
         (
-            source::TEXT.replace(
-                "-> END\n",
-                "> extra@10000000000000000007\n  Another harbour report.\n-> END\n",
-            ),
+            source::TEXT.replace("-> END\n", "> @extra\n  Another harbour report.\n-> END\n"),
             Route::Beacon,
             "harbour interaction did not finish",
         ),
@@ -540,7 +529,7 @@ fn unknown_choice_is_rejected_before_runtime_or_host_mutation() {
     }
     let before = execution.trace.clone();
     let host = scenario.town.model.snapshot(&execution.host).unwrap();
-    let unknown = "10000000000000000099";
+    let unknown = "unknown";
     assert_eq!(
         execution.choice(unknown).unwrap_err().to_string(),
         "requested harbour choice is unavailable"
@@ -554,9 +543,7 @@ fn unknown_choice_is_rejected_before_runtime_or_host_mutation() {
     assert_eq!(execution.trace, before);
     assert_eq!(scenario.town.model.snapshot(&execution.host).unwrap(), host);
     execution
-        .step(Operation::Choose(
-            execution.choice("10000000000000000002").unwrap(),
-        ))
+        .step(Operation::Choose(execution.choice("beacon").unwrap()))
         .unwrap();
     assert!(matches!(
         execution.trace.last().unwrap().outcome,

@@ -13,8 +13,8 @@ pub(super) const STORY: &str = concat!(
     ":: start default\n",
     "! immediate grant(player, \"gift\", 3, 0.5, true)\n",
     ":if ready()\n",
-    "  > yes@8843fd6f53f020a12b31\n    Changed.\n",
-    ":else\n  > no@4dff358182d02d9090e3\n    Unchanged.\n",
+    "  > @yes\n    Changed.\n",
+    ":else\n  > @no\n    Unchanged.\n",
     "-> END\n",
 );
 

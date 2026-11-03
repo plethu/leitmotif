@@ -10,8 +10,8 @@ fn repeated_authored_requests_are_distinct_occurrences_in_host_commit_order() {
     let asset = compile(concat!(
         ":: start default\n-> loop\n",
         ":: loop\n! deferred set()\n",
-        "? repeat@11111111111111111111\n  Repeat.\n  -> again\n",
-        "? finish@22222222222222222222\n  Finish.\n  -> END\n",
+        "? @repeat\n  Repeat.\n  -> again\n",
+        "? @finish\n  Finish.\n  -> END\n",
         ":: again\n! deferred reset()\n-> loop\n",
     ))
     .unwrap();
@@ -37,7 +37,7 @@ fn repeated_authored_requests_are_distinct_occurrences_in_host_commit_order() {
         choose(
             &asset,
             &mut session,
-            ChoiceId::new("11111111111111111111").unwrap(),
+            ChoiceId::new("repeat").unwrap(),
             &conditions.context(&model, &state)
         )
         .unwrap(),
@@ -48,7 +48,7 @@ fn repeated_authored_requests_are_distinct_occurrences_in_host_commit_order() {
     } = choose(
         &asset,
         &mut session,
-        ChoiceId::new("22222222222222222222").unwrap(),
+        ChoiceId::new("finish").unwrap(),
         &conditions.context(&model, &state),
     )
     .unwrap()
