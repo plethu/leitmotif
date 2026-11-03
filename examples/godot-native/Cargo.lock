@@ -435,7 +435,7 @@ checksum = "63b8176103e19a2643978565ca18b50549f6101881c443590420e4dc998a3c69"
 [[package]]
 name = "recite-core"
 version = "0.1.0"
-source = "git+https://github.com/plethu/recite?rev=6ddf13bb944dc7b1f0528654a2e70e243e54bb6f#6ddf13bb944dc7b1f0528654a2e70e243e54bb6f"
+source = "git+https://github.com/plethu/recite?rev=190d3a1d041b2509f3b3f7f6a47691a5ca6c9638#190d3a1d041b2509f3b3f7f6a47691a5ca6c9638"
 dependencies = [
  "atomic-write-file",
  "blake3",
@@ -455,7 +455,7 @@ dependencies = [
 [[package]]
 name = "recite-runtime"
 version = "0.1.0"
-source = "git+https://github.com/plethu/recite?rev=6ddf13bb944dc7b1f0528654a2e70e243e54bb6f#6ddf13bb944dc7b1f0528654a2e70e243e54bb6f"
+source = "git+https://github.com/plethu/recite?rev=190d3a1d041b2509f3b3f7f6a47691a5ca6c9638#190d3a1d041b2509f3b3f7f6a47691a5ca6c9638"
 dependencies = [
  "memchr",
  "recite-core",

@@ -162,7 +162,7 @@ its memory grows with states and edges, rather than states alone.
 
 The `leitmotif-recite` workspace crate binds compiled Recite calls to finite facts.
 It pins Recite compiler/runtime revision
-`6ddf13bb944dc7b1f0528654a2e70e243e54bb6f`; the core library has no Recite dependency.
+`190d3a1d041b2509f3b3f7f6a47691a5ca6c9638`; the core library has no Recite dependency.
 
 Register exact `CompiledConditionCall` values with `Bindings::bind_bool` or
 `bind_enum`, passing a typed `FactHandle`. Enum facts must encode their finite

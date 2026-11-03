@@ -21,8 +21,8 @@ crate-type = ["cdylib", "rlib"]
 leitmotif = { path = "../../crates/leitmotif", version = "0.1.0-alpha.0" }
 godot = { version = "=0.5.5", default-features = false, features = ["api-4-6"] }
 leitmotif-recite = { path = "../../crates/leitmotif-recite", version = "0.1.0-alpha.0" }
-recite-core = { version = "0.1.0", git = "https://github.com/plethu/recite", rev = "6ddf13bb944dc7b1f0528654a2e70e243e54bb6f" }
-recite-runtime = { version = "0.1.0", git = "https://github.com/plethu/recite", rev = "6ddf13bb944dc7b1f0528654a2e70e243e54bb6f" }
+recite-core = { version = "0.1.0", git = "https://github.com/plethu/recite", rev = "190d3a1d041b2509f3b3f7f6a47691a5ca6c9638" }
+recite-runtime = { version = "0.1.0", git = "https://github.com/plethu/recite", rev = "190d3a1d041b2509f3b3f7f6a47691a5ca6c9638" }
 
 # The engine configuration test enforces parity with root workspace lints,
 # except for the native entry point's explicit unsafe-code exception.
